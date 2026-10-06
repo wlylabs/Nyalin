@@ -1,5 +1,9 @@
 import {
+  analyzeReceiptText,
+  createReceipt,
   formatReceiptText,
+  receiptChange,
+  receiptGrandTotal,
   parseQtyInput,
   parseReceipt,
   parseReceiptLine,
@@ -90,28 +94,89 @@ describe('utilitas', () => {
     expect(parseQtyInput('abc')).toBeNull();
   });
 
-  it('total & teks nota', () => {
+  it('total, diskon, kembalian & teks nota', () => {
     const receipt = {
       title: 'Warung Bu Sri',
+      address: 'Jl. Melati 3',
+      number: '0007',
+      customer: 'Pak Budi',
       date: new Date(2026, 9, 6).getTime(),
       items: [
         { id: 'a', qty: 2, name: 'Indomie', price: 3500 },
         { id: 'b', qty: 1.5, name: 'Beras', price: 13000 },
       ],
+      discount: 1500,
+      paid: 30000,
+      note: 'Lunas',
     };
     expect(receiptTotal(receipt.items)).toBe(26500);
+    expect(receiptGrandTotal(receipt)).toBe(25000);
+    expect(receiptChange(receipt)).toBe(5000);
+    expect(receiptChange({ ...receipt, paid: 0 })).toBeNull();
     expect(formatReceiptText(receipt)).toBe(
       [
-        'NOTA — Warung Bu Sri',
-        '6 Oktober 2026',
+        '*Warung Bu Sri*',
+        'Jl. Melati 3',
+        'Nota No. 0007 · 6 Oktober 2026',
+        'Kepada: Pak Budi',
         '',
         '1. Indomie',
         '   2 × Rp3.500 = Rp7.000',
         '2. Beras',
         '   1,5 × Rp13.000 = Rp19.500',
         '',
-        'TOTAL (2 barang): Rp26.500',
+        'Subtotal: Rp26.500',
+        'Diskon: -Rp1.500',
+        '*TOTAL (2 barang): Rp25.000*',
+        'Bayar: Rp30.000',
+        'Kembali: Rp5.000',
+        '',
+        'Catatan: Lunas',
       ].join('\n'),
     );
+  });
+
+  it('nota lama tanpa field baru tetap bisa diformat', () => {
+    const text = formatReceiptText({ title: '', date: new Date(2026, 0, 2).getTime(), items: [] });
+    expect(text).toBe(['*NOTA*', '2 Januari 2026', '', '*TOTAL (0 barang): Rp0*'].join('\n'));
+  });
+});
+
+describe('analyzeReceiptText (struk)', () => {
+  const struk = `TOKO MAJU JAYA
+Jl. Merdeka No. 10, Bandung
+Telp 0812-3456-7890
+06/10/2026 14:30
+INDOMIE GORENG   2 x 3.500   7.000
+BERAS PANDAN 5KG             65.000
+Diskon member               -2.000
+SUBTOTAL                    72.000
+TOTAL                       70.000
+TUNAI                      100.000
+KEMBALI                     30.000
+Terima kasih`;
+
+  it('mengambil toko, alamat, tanggal, barang, diskon, dan total tercetak', () => {
+    const found = analyzeReceiptText(struk);
+    expect(found.store).toBe('Toko Maju Jaya');
+    expect(found.address).toBe('Jl. Merdeka No. 10, Bandung · Telp 0812-3456-7890');
+    expect(new Date(found.date!).toDateString()).toBe(new Date(2026, 9, 6).toDateString());
+    expect(found.items.map(({ qty, name, price }) => ({ qty, name, price }))).toEqual([
+      { qty: 2, name: 'Indomie Goreng', price: 3500 },
+      { qty: 1, name: 'Beras Pandan 5kg', price: 65000 },
+    ]);
+    expect(found.discount).toBe(2000);
+    expect(found.printedTotal).toBe(70000);
+  });
+
+  it('nota baru: total hitungan cocok dengan struk; profil toko hanya dipakai bila struk tanpa nama', () => {
+    const receipt = createReceipt(struk, 0, { title: 'Toko Saya', number: '0001' });
+    expect(receipt.title).toBe('Toko Maju Jaya');
+    expect(receipt.number).toBe('0001');
+    expect(receiptGrandTotal(receipt)).toBe(receipt.printedTotal);
+    expect(createReceipt('beras 10rb', 0, { title: 'Toko Saya', address: 'Jl. A' })).toMatchObject({
+      title: 'Toko Saya',
+      address: 'Jl. A',
+    });
   });
 });

@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react';
-import { Mic, Upload } from 'lucide-react';
+import { Mic, PencilLine, Upload } from 'lucide-react';
 import { ActionBar } from '../components/ActionBar';
 import { Button } from '../components/Button';
 import { CameraButton } from '../components/CameraButton';
@@ -27,7 +27,7 @@ export function HomeView({
   selectionError: NyalinErrorCode | null;
 }) {
   const { openFiles } = useFilePicker();
-  const { inputMode, setInputMode, selectFile, reportError } = useNyalin();
+  const { inputMode, setInputMode, selectFile, reportError, startManual } = useNyalin();
   const canRecord = useBrowserSupport(supportsVoiceRecording);
   const recorder = useVoiceRecorder({
     onComplete: (file, duration) => selectFile(file, { duration }),
@@ -44,11 +44,11 @@ export function HomeView({
     <div className="page page--narrow stack home">
       <section className="hero" aria-labelledby="hero-title">
         <h1 id="hero-title" className={['hero__title', r(0).className].filter(Boolean).join(' ')} style={r(0).style}>
-          Ubah gambar dan suara jadi tulisan.
+          Foto struk atau sebut belanjaan, langsung jadi nota.
         </h1>
         <p className={['hero__subtitle', r(1).className].filter(Boolean).join(' ')} style={r(1).style}>
-          Kirim foto, gambar tulisan, atau voice note. Nyalin akan mengubahnya menjadi teks yang bisa kamu edit dan
-          salin.
+          Nyalin menyusun jumlah, nama barang, harga, dan total jadi nota digital yang rapi — siap dikirim ke WhatsApp,
+          disimpan sebagai gambar, atau dicetak.
         </p>
       </section>
 
@@ -71,7 +71,13 @@ export function HomeView({
               id="upload"
             />
           </div>
-          <div {...r(4)}>
+          <div {...r(4)} className={['home-manual', r(4).className].filter(Boolean).join(' ')}>
+            <span>Tidak ada foto atau rekaman?</span>
+            <Button size="sm" icon={<PencilLine />} onClick={startManual}>
+              Buat nota manual
+            </Button>
+          </div>
+          <div {...r(5)}>
             <PrivacyNote kind={inputMode} />
           </div>
           <ActionBar mobileOnly label="Pilih file">
@@ -79,7 +85,7 @@ export function HomeView({
               <>
                 <CameraButton />
                 <Button variant="primary" icon={<Upload />} onClick={() => openFiles('image')}>
-                  Upload gambar
+                  Upload foto
                 </Button>
               </>
             ) : (

@@ -21,7 +21,8 @@ import { runTranscription, transcribeProvider, type SpeechLanguage } from '../se
 import type { ProcessProgress } from '../services/progress';
 import { createThumbnail } from '../lib/file';
 import { detectMediaKind, validateMediaFile, type MediaKind } from '../lib/media';
-import { createReceipt, type Receipt } from '../lib/receipt';
+import { createReceipt, emptyItem, type Receipt } from '../lib/receipt';
+import { receiptDefaults } from '../lib/storeProfile';
 
 const HISTORY_SAVE_DELAY = 600;
 
@@ -129,17 +130,22 @@ function useNyalinController() {
     [flushSave, go, abortRunning],
   );
 
-  const saveToHistory = useCallback(async (media: SelectedMedia, text: string, receipt: Receipt | null = null) => {
-    const thumbnail = media.kind === 'image' ? await createThumbnail(media.url).catch(() => '') : '';
-    return historyStore.add({
-      kind: media.kind,
-      fileName: media.name,
-      thumbnail,
-      duration: media.duration,
-      text,
-      receipt,
-    }).id;
-  }, []);
+  /** media null = nota manual. */
+  const saveToHistory = useCallback(
+    async (media: SelectedMedia | null, text: string, receipt: Receipt | null = null) => {
+      if (!media) return historyStore.add({ kind: 'manual', fileName: 'Nota manual', thumbnail: '', text, receipt }).id;
+      const thumbnail = media.kind === 'image' ? await createThumbnail(media.url).catch(() => '') : '';
+      return historyStore.add({
+        kind: media.kind,
+        fileName: media.name,
+        thumbnail,
+        duration: media.duration,
+        text,
+        receipt,
+      }).id;
+    },
+    [],
+  );
 
   const start = useCallback(async () => {
     const current = stateRef.current;
@@ -182,7 +188,7 @@ function useNyalinController() {
       }
       if (controller.signal.aborted) return;
       // Hasil langsung dibaca jadi nota dan ikut tersimpan di riwayat.
-      const receipt = createReceipt(text);
+      const receipt = createReceipt(text, Date.now(), receiptDefaults());
       const historyId = await saveToHistory(media, text, receipt);
       if (controller.signal.aborted) return;
       go({ type: 'success', result: { text, lowConfidence, historyId, receipt } });
@@ -214,8 +220,9 @@ function useNyalinController() {
     showingPartial.current = true;
     try {
       const text = current.partialText ?? '';
-      const historyId = text ? await saveToHistory(current.media, text) : null;
-      go({ type: 'show-partial', historyId });
+      const receipt = createReceipt(text, Date.now(), receiptDefaults());
+      const historyId = text ? await saveToHistory(current.media, text, receipt) : null;
+      go({ type: 'show-partial', historyId, receipt });
     } finally {
       showingPartial.current = false;
     }
@@ -234,7 +241,7 @@ function useNyalinController() {
         // stateRef belum memuat dispatch barusan, jadi gabungkan patch secara manual.
         const { text, receipt = null } = { ...current.result, ...patch };
         const hasContent = Boolean(text.trim() || receipt?.items.length);
-        if (hasContent && !current.media.fromHistory && !savingManual.current) {
+        if (hasContent && !current.media?.fromHistory && !savingManual.current) {
           savingManual.current = true;
           void saveToHistory(current.media, text, receipt).then((newId) => {
             savingManual.current = false;
@@ -279,19 +286,34 @@ function useNyalinController() {
       const kind = entry.kind ?? 'image';
       go({
         type: 'open',
-        media: {
-          kind,
-          url: kind === 'image' ? entry.thumbnail : '',
-          name: entry.fileName,
-          size: null,
-          duration: entry.duration ?? null,
-          fromHistory: true,
-        },
+        media:
+          kind === 'manual'
+            ? null
+            : {
+                kind,
+                url: kind === 'image' ? entry.thumbnail : '',
+                name: entry.fileName,
+                size: null,
+                duration: entry.duration ?? null,
+                fromHistory: true,
+              },
         result: { text: entry.text, lowConfidence: false, historyId: entry.id, receipt: entry.receipt ?? null },
       });
     },
     [flushSave, go, abortRunning],
   );
+
+  /** Nota kosong tanpa foto/suara — diketik langsung. Masuk riwayat setelah ada isinya. */
+  const startManual = useCallback(() => {
+    flushSave();
+    abortRunning();
+    const receipt = { ...createReceipt('', Date.now(), receiptDefaults()), items: [emptyItem()] };
+    go({
+      type: 'open',
+      media: null,
+      result: { text: '', lowConfidence: false, historyId: null, receipt, key: `manual-${Date.now()}` },
+    });
+  }, [flushSave, go, abortRunning]);
 
   const reset = useCallback(() => {
     flushSave();
@@ -313,6 +335,7 @@ function useNyalinController() {
       setLanguage,
       reportError,
       openHistoryEntry,
+      startManual,
       reset,
     }),
     [
@@ -326,6 +349,7 @@ function useNyalinController() {
       setLanguage,
       reportError,
       openHistoryEntry,
+      startManual,
       reset,
     ],
   );

@@ -10,12 +10,12 @@ import { consumeLaunchedFiles, initInstallPrompt, takeSharedFile } from '../lib/
  * Menghubungkan fitur PWA dengan alur aplikasi:
  * - registrasi service worker + tawaran "Muat ulang" saat ada versi baru
  * - file dari menu "Bagikan" (share target) & "Buka dengan" (file handler)
- * - shortcut ikon aplikasi (?mode=gambar|suara)
+ * - shortcut ikon aplikasi (?mode=gambar|suara|manual)
  * - pemberitahuan offline/online
  */
 export function PwaBridge() {
   const toast = useToast();
-  const { selectFile, setInputMode } = useNyalin();
+  const { selectFile, setInputMode, startManual } = useNyalin();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -60,6 +60,7 @@ export function PwaBridge() {
     const mode = searchParams.get('mode');
     if (mode === 'suara') setInputMode('audio');
     if (mode === 'gambar') setInputMode('image');
+    if (mode === 'manual') startManual();
     if (shared === '1') {
       void takeSharedFile().then((file) => {
         if (file) selectFile(file);
@@ -69,7 +70,7 @@ export function PwaBridge() {
       toast.show({ message: 'File belum bisa diterima. Buka Nyalin sekali, lalu bagikan lagi.', tone: 'error' });
     }
     if (shared || mode || searchParams.get('source')) router.replace(pathname, { scroll: false });
-  }, [searchParams, selectFile, setInputMode, toast, router, pathname]);
+  }, [searchParams, selectFile, setInputMode, startManual, toast, router, pathname]);
 
   // Status koneksi.
   useEffect(() => {

@@ -2,7 +2,7 @@
 
 import { ViewTransition, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AudioLines, History, Plus, Trash2 } from 'lucide-react';
+import { AudioLines, History, Plus, ReceiptText, Trash2 } from 'lucide-react';
 import { Button } from '../components/Button';
 import { EmptyState } from '../components/EmptyState';
 import { IconButton } from '../components/IconButton';
@@ -11,8 +11,7 @@ import { useToast } from '../components/Toast';
 import { excerpt } from '../lib/text';
 import { displayFileName } from '../lib/file';
 import { formatDuration } from '../lib/audio';
-import { formatRupiah, receiptTotal } from '../lib/receipt';
-import { useFilePicker } from '../components/FilePicker';
+import { formatRupiah, receiptGrandTotal } from '../lib/receipt';
 import { useNyalin } from '../state/NyalinProvider';
 import { historyStore, useHistory, type HistoryEntry } from '../state/historyStore';
 import { useViewFocus } from './useViewFocus';
@@ -36,6 +35,13 @@ export function formatHistoryDate(timestamp: number, now = new Date()): string {
   return `${dateFormat.format(date)}, ${timeFormat.format(date)}`;
 }
 
+/** Judul entri: nama toko di nota, atau nama file sumbernya. */
+function entryName(entry: HistoryEntry): string {
+  const title = entry.receipt?.title.trim();
+  if (title) return title;
+  return entry.kind === 'manual' ? 'Nota tanpa nama toko' : displayFileName(entry.fileName);
+}
+
 /** Ringkasan entri: nama barang di nota, atau teks hasil untuk riwayat lama. */
 function entryExcerpt(entry: HistoryEntry): string {
   const names = entry.receipt?.items.map((i) => i.name.trim()).filter(Boolean) ?? [];
@@ -47,7 +53,6 @@ export function HistoryView() {
   const entries = useHistory();
   const router = useRouter();
   const nyalin = useNyalin();
-  const { openFiles } = useFilePicker();
 
   const onOpen = (entry: HistoryEntry) => {
     nyalin.openHistoryEntry(entry);
@@ -56,7 +61,6 @@ export function HistoryView() {
   const onStart = () => {
     nyalin.reset();
     router.push('/');
-    openFiles(nyalin.inputMode);
   };
   const toast = useToast();
   const [confirmClear, setConfirmClear] = useState(false);
@@ -78,7 +82,7 @@ export function HistoryView() {
             <h1 ref={titleRef} tabIndex={-1} className="view-title">
               Riwayat
             </h1>
-            <p className="view-subtitle">Hanya tersimpan di browser ini. Gambar dan suara asli tidak disimpan.</p>
+            <p className="view-subtitle">Hanya tersimpan di browser ini. Foto dan suara asli tidak disimpan.</p>
           </div>
           {entries.length > 0 && (
             <Button size="sm" variant="ghost" icon={<Trash2 />} onClick={() => setConfirmClear(true)}>
@@ -92,10 +96,10 @@ export function HistoryView() {
             <EmptyState
               icon={<History />}
               title="Belum ada riwayat"
-              description="Hasil Nyalin dari gambar dan voice note akan muncul di sini supaya bisa kamu buka lagi."
+              description="Nota dari foto struk, voice note, atau yang kamu buat manual akan muncul di sini."
             >
               <Button variant="primary" icon={<Plus />} onClick={onStart}>
-                Mulai Nyalin
+                Nota baru
               </Button>
             </EmptyState>
           </div>
@@ -104,9 +108,9 @@ export function HistoryView() {
             {entries.map((entry) => (
               <li key={entry.id} className="history-item">
                 <button type="button" className="history-item__open" onClick={() => onOpen(entry)}>
-                  {entry.kind === 'audio' ? (
+                  {entry.kind === 'audio' || entry.kind === 'manual' ? (
                     <span className="history-item__thumb history-item__thumb--audio" aria-hidden="true">
-                      <AudioLines />
+                      {entry.kind === 'audio' ? <AudioLines /> : <ReceiptText />}
                     </span>
                   ) : entry.thumbnail ? (
                     <img className="history-item__thumb" src={entry.thumbnail} alt="" loading="lazy" />
@@ -114,23 +118,20 @@ export function HistoryView() {
                     <span className="history-item__thumb" aria-hidden="true" />
                   )}
                   <span className="history-item__body">
-                    <span className="history-item__name">{displayFileName(entry.fileName)}</span>
+                    <span className="history-item__name">{entryName(entry)}</span>
                     <span className="history-item__date">
                       <time dateTime={new Date(entry.createdAt).toISOString()}>
                         {formatHistoryDate(entry.createdAt)}
                       </time>
                       {entry.kind === 'audio' &&
                         ` · Voice note${entry.duration ? ` ${formatDuration(entry.duration)}` : ''}`}
-                      {entry.receipt && ` · Nota ${formatRupiah(receiptTotal(entry.receipt.items))}`}
+                      {entry.receipt?.number && ` · No. ${entry.receipt.number}`}
+                      {entry.receipt && ` · ${formatRupiah(receiptGrandTotal(entry.receipt))}`}
                     </span>
                     <span className="history-item__excerpt">{entryExcerpt(entry)}</span>
                   </span>
                 </button>
-                <IconButton
-                  label={`Hapus ${displayFileName(entry.fileName)}`}
-                  icon={<Trash2 />}
-                  onClick={() => remove(entry)}
-                />
+                <IconButton label={`Hapus ${entryName(entry)}`} icon={<Trash2 />} onClick={() => remove(entry)} />
               </li>
             ))}
           </ul>

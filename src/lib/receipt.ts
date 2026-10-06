@@ -13,12 +13,43 @@ export interface ReceiptItem {
   price: number;
 }
 
+/**
+ * Isi nota mengikuti nota kontan pada umumnya: identitas toko, nomor, tanggal, pembeli,
+ * daftar barang, total, dan pembayaran. Field opsional ditambahkan belakangan —
+ * nota lama di riwayat tetap terbaca (lihat `normalizeReceipt`).
+ */
 export interface Receipt {
   /** Nama toko / keterangan nota. */
   title: string;
-  /** Waktu nota dibuat (ms). */
+  /** Alamat atau nomor telepon toko. */
+  address?: string;
+  /** Nomor nota. */
+  number?: string;
+  /** Nama pembeli ("Kepada"). */
+  customer?: string;
+  /** Tanggal nota (ms). */
   date: number;
   items: ReceiptItem[];
+  /** Potongan harga untuk seluruh nota (rupiah). */
+  discount?: number;
+  /** Uang yang dibayarkan; 0 = belum diisi. */
+  paid?: number;
+  note?: string;
+  /** Total yang tercetak di struk asal, untuk dicocokkan dengan hitungan nota. */
+  printedTotal?: number | null;
+}
+
+export function normalizeReceipt(receipt: Receipt): Required<Receipt> {
+  return {
+    address: '',
+    number: '',
+    customer: '',
+    discount: 0,
+    paid: 0,
+    note: '',
+    printedTotal: null,
+    ...receipt,
+  };
 }
 
 let idCounter = 0;
@@ -33,8 +64,19 @@ export function emptyItem(): ReceiptItem {
 
 export const itemSubtotal = (item: ReceiptItem) => Math.round(item.qty * item.price);
 
+/** Jumlah semua subtotal barang (sebelum diskon). */
 export function receiptTotal(items: ReceiptItem[]): number {
   return items.reduce((sum, item) => sum + itemSubtotal(item), 0);
+}
+
+/** Total yang harus dibayar: subtotal barang dikurangi diskon. */
+export function receiptGrandTotal(receipt: Receipt): number {
+  return Math.max(0, receiptTotal(receipt.items) - (receipt.discount ?? 0));
+}
+
+/** Kembalian (positif) atau kekurangan (negatif); null bila uang bayar belum diisi. */
+export function receiptChange(receipt: Receipt): number | null {
+  return receipt.paid ? receipt.paid - receiptGrandTotal(receipt) : null;
 }
 
 const numberFormat = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
@@ -125,7 +167,15 @@ const COUNT_SUFFIX =
 
 /** Baris ringkasan pembayaran — bukan barang. */
 const SUMMARY_LINE =
-  /\b(sub\s*total|total|grand\s*total|kembali(an)?|tunai|cash|bayar|pembayaran|ppn|pajak|tax|change|debit|kredit|saldo|anggaran)\b/i;
+  /\b(sub\s*total|total|grand\s*total|kembali(an)?|tunai|cash|bayar|pembayaran|ppn|pajak|tax|change|debit|kredit|saldo|anggaran|diskon|disc|discount|potongan|hemat|voucher)\b/i;
+const DISCOUNT_LINE = /\b(diskon|disc|discount|potongan|hemat|voucher)\b/i;
+/** "TOTAL", "Grand Total", "Total Belanja" — bukan subtotal atau anggaran. */
+const TOTAL_LINE = /\b(grand\s*total|total)\b/i;
+const NOT_TOTAL = /\b(sub\s*total|anggaran|item|qty|jumlah\s+barang|hemat|diskon)\b/i;
+const ADDRESS_LINE = /\b(jl|jln|jalan|telp|tlp|telepon|hp|wa|kec|kel|kota|kab|rt|rw|blok|ruko|gg|gang|no)\b\.?/i;
+/** Nomor telepon / kontak toko: "Telp 0812-3456-7890", "WA 08123456789". */
+const CONTACT_LINE = /\b(telp|tlp|telepon|hp|wa|whatsapp|npwp)\b|\b0\d{2,4}[-\s]\d{3,4}[-\s]?\d{3,4}\b/i;
+const DATE = /\b(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})\b/;
 /** Judul catatan tanpa angka, mis. "Catatan Belanja", "Daftar belanja minggu ini". */
 const TITLE_LINE = /^(catatan|daftar|list|belanja(an)?|nota|struk|kwitansi|kuitansi)\b/i;
 const DATE_OR_TIME = /\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b|\b\d{1,2}[:.]\d{2}(?::\d{2})?\s*(wib|wita|wit)?\b/i;
@@ -186,13 +236,20 @@ function tokenize(line: string): NumberToken[] {
   return tokens;
 }
 
+/** "INDOMIE GORENG" (gaya struk) → "Indomie Goreng". Teks campuran dibiarkan. */
+function softenCaps(text: string): string {
+  if (text.length < 4 || text !== text.toUpperCase() || !/[A-Z]{3}/.test(text)) return text;
+  return text.toLowerCase().replace(/(^|[\s(/-])(\p{L})/gu, (_, sep: string, ch: string) => sep + ch.toUpperCase());
+}
+
 function cleanName(name: string): string {
   const cleaned = name
     .replace(/\s+/g, ' ')
     .replace(/^[\s\-–—:=,.;@x×*]+|[\s\-–—:=,.;@×*]+$/gi, '')
     .replace(FILLER_PREFIX, '')
     .trim();
-  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+  const softened = softenCaps(cleaned);
+  return softened.charAt(0).toUpperCase() + softened.slice(1);
 }
 
 export interface ParsedLine {
@@ -207,7 +264,7 @@ export interface ParsedLine {
 export function parseReceiptLine(input: string): ParsedLine | null {
   let line = input.replace(/^\s*(?:[-•*·▪]|\d{1,2}[.)](?=\s))\s*/, '').trim();
   if (!line || !/[a-z]/i.test(line)) return null;
-  if (SUMMARY_LINE.test(line) || DATE_OR_TIME.test(line)) return null;
+  if (SUMMARY_LINE.test(line) || DATE_OR_TIME.test(line) || CONTACT_LINE.test(line)) return null;
   line = replaceNumberWords(line);
 
   const tokens = tokenize(line);
@@ -260,46 +317,168 @@ export function parseReceiptLine(input: string): ParsedLine | null {
   return { qty, name, price, hasPrice: prices.length > 0 };
 }
 
-/** Memecah teks jadi kandidat baris barang (baris baru, titik koma, koma, "dan"). */
-function splitCandidates(text: string): string[] {
-  return text
-    .replace(/\r\n?/g, '\n')
-    .split(/\n|;|,\s+(?=\D)|\.\s+(?=[A-Z])|\s+dan\s+/)
+/** Memecah satu baris jadi kandidat barang (titik koma, koma, akhir kalimat, "dan"). */
+function splitCandidates(line: string): string[] {
+  return line
+    .split(/;|,\s+(?=\D)|\.\s+(?=[A-Z])|\s+dan\s+/)
     .map((s) => s.trim())
     .filter(Boolean);
 }
 
+/** Harga terakhir di sebuah baris ringkasan, mis. "TOTAL      106.000" → 106000. */
+function lastPrice(line: string): number | null {
+  const prices = tokenize(replaceNumberWords(line)).filter((t) => t.kind === 'price');
+  return prices.length ? prices[prices.length - 1].value : null;
+}
+
+function parseDate(line: string): number | null {
+  const m = DATE.exec(line);
+  if (!m) return null;
+  const [, d, mo, y] = m.map(Number);
+  const year = y < 100 ? 2000 + y : y;
+  const date = new Date(year, mo - 1, d, 12);
+  const valid = date.getMonth() === mo - 1 && date.getDate() === d && year >= 2000 && year <= 2100;
+  return valid ? date.getTime() : null;
+}
+
+export interface ReceiptAnalysis {
+  items: ReceiptItem[];
+  /** Nama toko dari baris paling atas struk. */
+  store: string;
+  address: string;
+  date: number | null;
+  discount: number;
+  printedTotal: number | null;
+}
+
 /**
- * Membaca teks bebas jadi daftar barang.
- * Bila ada baris berharga, baris tanpa harga (judul toko, alamat, salam) diabaikan.
- * Bila tidak ada harga sama sekali (daftar belanja), semua baris barang diambil dengan harga kosong.
+ * Membaca teks bebas jadi nota.
+ * - Barang: lihat `parseReceiptLine`. Bila ada baris berharga, baris tanpa harga (salam, slogan) diabaikan;
+ *   bila tidak ada harga sama sekali (daftar belanja), semua barang diambil dengan harga kosong.
+ * - Struk: nama toko & alamat dari baris sebelum barang pertama, tanggal, diskon, dan total tercetak
+ *   (dipakai untuk memeriksa apakah ada barang yang terlewat).
  */
+export function analyzeReceiptText(text: string): ReceiptAnalysis {
+  const rawLines = text
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const parsed: (ParsedLine & { line: number })[] = [];
+  let discount = 0;
+  let total: number | null = null;
+  let grandTotal: number | null = null;
+  let date: number | null = null;
+
+  rawLines.forEach((raw, index) => {
+    date ??= parseDate(raw);
+    if (DISCOUNT_LINE.test(raw)) {
+      discount += Math.abs(lastPrice(raw) ?? 0);
+      return;
+    }
+    if (TOTAL_LINE.test(raw) && !NOT_TOTAL.test(raw)) {
+      const value = lastPrice(raw);
+      if (value !== null) {
+        if (/grand\s*total/i.test(raw)) grandTotal ??= value;
+        else total ??= value;
+      }
+      return;
+    }
+    for (const candidate of splitCandidates(raw)) {
+      const item = parseReceiptLine(candidate);
+      if (item) parsed.push({ ...item, line: index });
+    }
+  });
+
+  const anyPrice = parsed.some((l) => l.hasPrice);
+  const kept = parsed.filter((l) => !anyPrice || l.hasPrice);
+
+  // Kepala struk: baris sebelum barang berharga pertama.
+  let store = '';
+  const addressParts: string[] = [];
+  if (anyPrice) {
+    const firstItemLine = kept[0].line;
+    for (const raw of rawLines.slice(0, firstItemLine)) {
+      if (DATE.test(raw) || SUMMARY_LINE.test(raw) || /^(nota|struk|kwitansi|kuitansi)\b/i.test(raw)) continue;
+      const digits = (raw.match(/\d/g) ?? []).length;
+      if (!store && !ADDRESS_LINE.test(raw) && /[a-z]{3}/i.test(raw) && digits <= 2) store = softenCaps(raw);
+      else if (store && (ADDRESS_LINE.test(raw) || /\d{6,}/.test(raw.replace(/[\s-]/g, ''))))
+        addressParts.push(softenCaps(raw));
+    }
+  }
+
+  return {
+    items: kept.map((l) => ({ id: createItemId(), qty: l.qty, name: l.name, price: l.price })),
+    store,
+    address: addressParts.slice(0, 2).join(' · '),
+    date,
+    discount,
+    printedTotal: anyPrice ? (grandTotal ?? total) : null,
+  };
+}
+
 export function parseReceipt(text: string): ReceiptItem[] {
-  const lines = splitCandidates(text)
-    .map(parseReceiptLine)
-    .filter((l): l is ParsedLine => l !== null);
-  const anyPrice = lines.some((l) => l.hasPrice);
-  return lines
-    .filter((l) => !anyPrice || l.hasPrice)
-    .map((l) => ({ id: createItemId(), qty: l.qty, name: l.name, price: l.price }));
+  return analyzeReceiptText(text).items;
 }
 
-export function createReceipt(text: string, date = Date.now()): Receipt {
-  return { title: '', date, items: parseReceipt(text) };
+export interface ReceiptDefaults {
+  title?: string;
+  address?: string;
+  number?: string;
 }
 
-/** Teks nota siap dibagikan (WhatsApp, catatan) — tanpa perataan kolom agar rapi di font apa pun. */
-export function formatReceiptText(receipt: Receipt): string {
-  const dateText = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(
-    new Date(receipt.date),
-  );
+/** Nota baru dari teks hasil baca. Nama toko dari struk diutamakan; bila tidak ada, pakai profil toko. */
+export function createReceipt(text: string, date = Date.now(), defaults: ReceiptDefaults = {}): Receipt {
+  const found = analyzeReceiptText(text);
+  return {
+    title: found.store || defaults.title || '',
+    address: found.store ? found.address : (defaults.address ?? ''),
+    number: defaults.number ?? '',
+    customer: '',
+    date: found.date ?? date,
+    items: found.items,
+    discount: found.discount,
+    paid: 0,
+    note: '',
+    printedTotal: found.printedTotal,
+  };
+}
+
+export const formatReceiptDate = (date: number) =>
+  new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(date));
+
+/**
+ * Teks nota siap dibagikan ke WhatsApp: tanpa perataan kolom (rapi di font apa pun),
+ * judul dan total ditebalkan dengan *…* sesuai format WhatsApp.
+ */
+export function formatReceiptText(input: Receipt): string {
+  const receipt = normalizeReceipt(input);
   const items = receipt.items.filter((i) => i.name.trim() || i.price > 0);
-  const lines = [receipt.title.trim() ? `NOTA — ${receipt.title.trim()}` : 'NOTA', dateText, ''];
+  const lines: string[] = [`*${receipt.title.trim() || 'NOTA'}*`];
+  if (receipt.address.trim()) lines.push(receipt.address.trim());
+  lines.push(
+    [receipt.number.trim() && `Nota No. ${receipt.number.trim()}`, formatReceiptDate(receipt.date)]
+      .filter(Boolean)
+      .join(' · '),
+  );
+  if (receipt.customer.trim()) lines.push(`Kepada: ${receipt.customer.trim()}`);
+  lines.push('');
   items.forEach((item, index) => {
     lines.push(`${index + 1}. ${item.name.trim() || 'Barang'}`);
     lines.push(`   ${formatQty(item.qty)} × ${formatRupiah(item.price)} = ${formatRupiah(itemSubtotal(item))}`);
   });
   if (items.length) lines.push('');
-  lines.push(`TOTAL (${items.length} barang): ${formatRupiah(receiptTotal(items))}`);
+  if (receipt.discount > 0) {
+    lines.push(`Subtotal: ${formatRupiah(receiptTotal(items))}`);
+    lines.push(`Diskon: -${formatRupiah(receipt.discount)}`);
+  }
+  lines.push(`*TOTAL (${items.length} barang): ${formatRupiah(receiptGrandTotal({ ...receipt, items }))}*`);
+  const change = receiptChange({ ...receipt, items });
+  if (change !== null) {
+    lines.push(`Bayar: ${formatRupiah(receipt.paid)}`);
+    lines.push(change >= 0 ? `Kembali: ${formatRupiah(change)}` : `Kurang: ${formatRupiah(-change)}`);
+  }
+  if (receipt.note.trim()) lines.push('', `Catatan: ${receipt.note.trim()}`);
   return lines.join('\n');
 }

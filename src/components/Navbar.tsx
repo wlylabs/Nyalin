@@ -19,7 +19,7 @@ export function Navbar({ onStart, historyActive }: { onStart: () => void; histor
             <span>Riwayat</span>
           </Link>
           <Button variant="primary" size="sm" icon={<Plus />} onClick={onStart} className="navbar__cta">
-            Mulai Nyalin
+            Nota baru
           </Button>
         </div>
       </nav>

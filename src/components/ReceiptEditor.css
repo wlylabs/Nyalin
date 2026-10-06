@@ -47,13 +47,138 @@
   font-weight: var(--weight-semibold);
 }
 
-.receipt__date {
+.receipt__address {
+  width: 100%;
+  padding: 2px var(--space-2);
+  margin-left: calc(-1 * var(--space-2));
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
   color: var(--color-ink-muted);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
 }
 
+.receipt__address::placeholder {
+  color: var(--color-ink-subtle);
+}
+
+.receipt__meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: var(--space-2) var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px dashed var(--color-line-strong);
+}
+
+.receipt-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.receipt-field--wide {
+  grid-column: 1 / -1;
+}
+
+.receipt-field label {
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.receipt__note {
+  min-height: auto;
+  padding: var(--space-2) var(--space-3);
+  resize: vertical;
+  font-family: inherit;
+  line-height: var(--leading-normal);
+}
+
+/* Ringkasan: label di kiri, nilai rata kanan. */
+.receipt__summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding-top: var(--space-3);
+  border-top: 2px dashed var(--color-line-strong);
+}
+
+.receipt-sum {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: var(--control-height-sm);
+}
+
+.receipt-sum dt {
+  font-weight: var(--weight-semibold);
+}
+
+.receipt-sum dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.receipt-sum__input {
+  width: 9.5rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.receipt-sum--total {
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.receipt-sum--total dt {
+  font-size: var(--text-lg);
+}
+
+.receipt-sum--total strong {
+  color: var(--color-brand-700);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+}
+
+.receipt-sum--short dd {
+  color: var(--color-error);
+  font-weight: var(--weight-semibold);
+}
+
+/* Judul kolom. Ponsel: hanya baris angka (nama barang jelas dari placeholder-nya). */
 .receipt__columns {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr) 40px;
+  grid-template-areas: 'qty price sub sub';
+  gap: var(--space-2);
+  color: var(--color-ink-subtle);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.receipt__col-qty {
+  grid-area: qty;
+  text-align: center;
+}
+
+.receipt__col-name {
   display: none;
+  grid-area: name;
+}
+
+.receipt__col-price {
+  grid-area: price;
+}
+
+.receipt__col-sub {
+  grid-area: sub;
 }
 
 .receipt__items {
@@ -97,12 +222,14 @@
 }
 
 .receipt-row__field:hover,
-.receipt__title:hover {
+.receipt__title:hover,
+.receipt__address:hover {
   border-color: var(--color-ink-subtle);
 }
 
 .receipt-row__field:focus,
-.receipt__title:focus {
+.receipt__title:focus,
+.receipt__address:focus {
   outline: none;
   border-color: var(--color-brand-600);
   box-shadow: 0 0 0 3px var(--color-brand-100);
@@ -151,23 +278,6 @@
   margin: 0 calc(-1 * var(--space-2));
 }
 
-.receipt__total {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 2px dashed var(--color-line-strong);
-  font-weight: var(--weight-semibold);
-}
-
-.receipt__total strong {
-  color: var(--color-brand-700);
-  font-size: var(--text-xl);
-  font-weight: var(--weight-bold);
-  font-variant-numeric: tabular-nums;
-}
-
 .receipt__count {
   color: var(--color-ink-muted);
   font-size: var(--text-sm);
@@ -182,25 +292,16 @@
 @container (min-width: 520px) {
   .receipt__columns,
   .receipt-row {
-    display: grid;
     grid-template-columns: 56px minmax(0, 1fr) 108px 100px 40px;
     grid-template-areas: 'qty name price subtotal remove';
-    gap: var(--space-2);
   }
 
   .receipt__columns {
-    color: var(--color-ink-subtle);
-    font-size: var(--text-xs);
-    font-weight: var(--weight-semibold);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    grid-template-areas: 'qty name price sub .';
   }
 
-  .receipt__columns span:first-child {
-    text-align: center;
-  }
-
-  .receipt__columns span:nth-child(2) {
+  .receipt__col-name {
+    display: block;
     padding-left: var(--space-3);
   }
 
@@ -211,6 +312,16 @@
 
   .receipt-row__name {
     font-weight: var(--weight-regular);
+  }
+}
+
+@container (min-width: 520px) {
+  .receipt__meta {
+    grid-template-columns: 8rem 11rem minmax(0, 1fr);
+  }
+
+  .receipt-field--wide {
+    grid-column: auto;
   }
 }
 

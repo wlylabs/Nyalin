@@ -10,13 +10,13 @@ export interface SwitchOption<T extends string> {
 }
 
 const MEDIA_OPTIONS: SwitchOption<MediaKind>[] = [
-  { value: 'image', label: 'Gambar', Icon: ImageIcon },
+  { value: 'image', label: 'Foto struk', Icon: ImageIcon },
   { value: 'audio', label: 'Voice note', Icon: AudioLines },
 ];
 
 /** Pilihan jenis masukan di beranda: gambar atau voice note. */
 export function ModeSwitch({ value, onChange }: { value: MediaKind; onChange: (v: MediaKind) => void }) {
-  return <SegmentedSwitch options={MEDIA_OPTIONS} value={value} onChange={onChange} label="Jenis yang mau disalin" />;
+  return <SegmentedSwitch options={MEDIA_OPTIONS} value={value} onChange={onChange} label="Sumber nota" />;
 }
 
 /**

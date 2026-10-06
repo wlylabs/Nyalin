@@ -22,13 +22,16 @@ export interface ResultData {
   historyId: string | null;
   /** Nota digital yang dibaca dari teks hasil. */
   receipt?: Receipt | null;
+  /** Kunci tampilan yang stabil (nota manual belum punya URL media maupun id riwayat). */
+  key?: string;
 }
 
 export type NyalinState =
   | { phase: 'empty'; selectionError: NyalinErrorCode | null }
   | { phase: 'selected'; media: SelectedMedia; language: SpeechLanguage; selectionError: NyalinErrorCode | null }
   | { phase: 'processing'; media: SelectedMedia; language: SpeechLanguage; progress: ProcessProgress }
-  | { phase: 'result'; media: SelectedMedia; result: ResultData }
+  /** media null = nota manual (dibuat tanpa foto/suara). */
+  | { phase: 'result'; media: SelectedMedia | null; result: ResultData }
   | {
       phase: 'error';
       media: SelectedMedia | null;
@@ -47,10 +50,10 @@ export type NyalinAction =
   | { type: 'success'; result: ResultData }
   | { type: 'fail'; code: NyalinErrorCode; partialText?: string | null }
   | { type: 'cancel' }
-  | { type: 'show-partial'; historyId: string | null }
+  | { type: 'show-partial'; historyId: string | null; receipt: Receipt }
   | { type: 'edit-receipt'; receipt: Receipt | null }
   | { type: 'attach-history'; historyId: string }
-  | { type: 'open'; media: SelectedMedia; result: ResultData }
+  | { type: 'open'; media: SelectedMedia | null; result: ResultData }
   | { type: 'reset' };
 
 export const initialState: NyalinState = { phase: 'empty', selectionError: null };
@@ -123,6 +126,7 @@ export function nyalinReducer(state: NyalinState, action: NyalinAction): NyalinS
           text: state.partialText ?? '',
           lowConfidence: Boolean(state.partialText),
           historyId: action.historyId,
+          receipt: action.receipt,
         },
       };
 

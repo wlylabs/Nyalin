@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Navbar } from '../components/Navbar';
-import { FilePickerProvider, useFilePicker } from '../components/FilePicker';
+import { FilePickerProvider } from '../components/FilePicker';
 import { ToastProvider } from '../components/Toast';
 import { NyalinProvider, useNyalin } from '../state/NyalinProvider';
 import { PwaBridge } from './PwaBridge';
@@ -41,10 +41,9 @@ function FileRouting({ children }: { children: ReactNode }) {
 
 function Shell({ children }: { children: ReactNode }) {
   const nyalin = useNyalin();
-  const { openFiles } = useFilePicker();
   const router = useRouter();
   const pathname = usePathname();
-  const { selectFile, reset, inputMode } = nyalin;
+  const { selectFile, reset } = nyalin;
 
   // Tempel gambar langsung dari clipboard (Ctrl+V) di desktop.
   useEffect(() => {
@@ -61,12 +60,11 @@ function Shell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('paste', onPaste);
   }, [selectFile, router, pathname]);
 
-  // Mulai ulang: kembali ke awal dan langsung buka pemilih file sesuai mode.
+  /** "Nota baru": kembali ke beranda untuk memilih foto struk, voice note, atau nota manual. */
   const startFresh = useCallback(() => {
     reset();
     if (pathname !== '/') router.push('/');
-    openFiles(inputMode);
-  }, [reset, router, pathname, openFiles, inputMode]);
+  }, [reset, router, pathname]);
 
   return (
     <>

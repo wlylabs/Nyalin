@@ -5,21 +5,21 @@ import type { Receipt } from '../lib/receipt';
 
 /**
  * Riwayat disimpan hanya di browser ini (localStorage).
- * Yang disimpan: teks hasil + thumbnail kecil (gambar) atau durasi (suara).
+ * Yang disimpan: nota, teks hasil baca + thumbnail kecil (gambar) atau durasi (suara).
  * Gambar dan rekaman suara asli tidak pernah disimpan.
  */
 export interface HistoryEntry {
   id: string;
   createdAt: number;
-  /** Entri lama (sebelum ada voice note) tidak punya field ini → dianggap gambar. */
-  kind?: MediaKind;
+  /** Entri lama (sebelum ada voice note) tidak punya field ini → dianggap gambar. "manual" = nota tanpa foto/suara. */
+  kind?: MediaKind | 'manual';
   fileName: string;
   /** Data URL JPEG kecil (±200px). Kosong untuk suara. */
   thumbnail: string;
   /** Durasi suara dalam detik. */
   duration?: number | null;
   text: string;
-  /** Nota digital yang dibuat dari teks ini (bila pernah dibuka di tab Nota). */
+  /** Nota digital dari hasil ini. */
   receipt?: Receipt | null;
 }
 

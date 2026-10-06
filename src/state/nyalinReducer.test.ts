@@ -41,11 +41,16 @@ describe('nyalinReducer', () => {
     s = nyalinReducer(s, { type: 'fail', code: 'blurry', partialText: 'Rn ka' });
     expect(s.phase).toBe('error');
     expect(nyalinReducer(s, { type: 'start' }).phase).toBe('processing');
-    const partial = nyalinReducer(s, { type: 'show-partial', historyId: null });
+    const partial = nyalinReducer(s, {
+      type: 'show-partial',
+      historyId: null,
+      receipt: { title: '', date: 0, items: [] },
+    });
     expect(partial.phase === 'result' && partial.result).toEqual({
       text: 'Rn ka',
       lowConfidence: true,
       historyId: null,
+      receipt: { title: '', date: 0, items: [] },
     });
   });
 

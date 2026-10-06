@@ -60,7 +60,7 @@ function Stage(): ReactNode {
     case 'result':
       return (
         <ResultView
-          key={state.media.url || state.result.historyId || 'result'}
+          key={state.result.key ?? (state.media?.url || state.result.historyId || 'result')}
           media={state.media}
           result={state.result}
           onEditReceipt={nyalin.editReceipt}

@@ -5,12 +5,12 @@ import './ProcessingState.css';
 
 const COPY: Record<MediaKind, Record<ProcessStage, { title: string; description: string }>> = {
   image: {
-    preparing: { title: 'Menyiapkan gambar...', description: 'Sebentar, gambar sedang dirapikan.' },
+    preparing: { title: 'Menyiapkan foto...', description: 'Sebentar, foto sedang dirapikan.' },
     'loading-engine': {
       title: 'Menyiapkan pembaca tulisan...',
       description: 'Pemakaian pertama butuh waktu sedikit lebih lama.',
     },
-    recognizing: { title: 'Membaca tulisan...', description: 'Sedang mengenali isi gambar.' },
+    recognizing: { title: 'Membaca struk...', description: 'Sedang mengenali barang dan harga.' },
   },
   audio: {
     preparing: { title: 'Menyiapkan audio...', description: 'Sebentar, suara sedang disiapkan.' },
@@ -18,7 +18,7 @@ const COPY: Record<MediaKind, Record<ProcessStage, { title: string; description:
       title: 'Menyiapkan pengenal suara...',
       description: 'Pemakaian pertama mengunduh model. Berikutnya langsung dari perangkat.',
     },
-    recognizing: { title: 'Mendengarkan voice note...', description: 'Sedang mengubah suara jadi tulisan.' },
+    recognizing: { title: 'Mendengarkan voice note...', description: 'Sedang mencatat barang dan harga.' },
   },
 };
 
@@ -42,7 +42,7 @@ export function ProcessingState({ progress, kind = 'image' }: { progress: Proces
         <div
           className={`progress${measurable ? '' : ' progress--indeterminate'}`}
           role="progressbar"
-          aria-label={kind === 'audio' ? 'Progres mengubah suara jadi tulisan' : 'Progres membaca tulisan'}
+          aria-label={kind === 'audio' ? 'Progres mencatat voice note' : 'Progres membaca struk'}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={measurable ? percent! : undefined}
