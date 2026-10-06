@@ -20,10 +20,8 @@
   margin: 0;
   padding: var(--space-1);
   list-style: none;
-  border: 1px solid var(--color-line-strong);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-md);
+  background: var(--color-brand-50);
 }
 
 .item-name__option {
@@ -39,9 +37,10 @@
   cursor: pointer;
 }
 
+/* Daftar saran tanpa garis & bayangan: dibedakan lewat warna latar saja. */
 .item-name__option:hover,
 .item-name__option[aria-selected='true'] {
-  background: var(--color-brand-50);
+  background: var(--color-brand-100);
 }
 
 .item-name__option-name {
@@ -104,20 +103,17 @@
   max-width: 100%;
   min-height: var(--control-height-sm);
   padding: 0 var(--space-3) 0 var(--space-2);
-  border: 1px solid var(--color-line-strong);
+  border: 0;
   border-radius: var(--radius-full);
   background: var(--color-surface);
   color: var(--color-ink);
   font: inherit;
   font-size: var(--text-sm);
   cursor: pointer;
-  transition:
-    border-color var(--duration-fast) ease,
-    background-color var(--duration-fast) ease;
+  transition: background-color var(--duration-fast) ease;
 }
 
 .product-chip:hover {
-  border-color: var(--color-brand-600);
   background: var(--color-brand-50);
 }
 
@@ -237,7 +233,6 @@
   align-items: center;
   gap: var(--space-1);
   padding: var(--space-1) 0;
-  border-bottom: 1px solid var(--color-line);
 }
 
 .product-list__name {

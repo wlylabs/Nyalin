@@ -14,8 +14,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding-bottom: var(--space-3);
-  border-bottom: 1px dashed var(--color-line-strong);
+  padding-bottom: var(--space-1);
 }
 
 .receipt__icon {
@@ -97,8 +96,7 @@
   flex-direction: column;
   gap: var(--space-2);
   margin: 0;
-  padding-top: var(--space-3);
-  border-top: 2px dashed var(--color-line-strong);
+  padding-top: var(--space-2);
 }
 
 .receipt-sum {
@@ -180,7 +178,8 @@
 .receipt__items {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  /* Tanpa garis pemisah: jarak antar barang yang memisahkan. */
+  gap: var(--space-4);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -196,7 +195,6 @@
   align-items: center;
   gap: var(--space-2);
   padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--color-line);
 }
 
 .receipt-row__field {
@@ -208,9 +206,7 @@
   background: var(--color-surface);
   color: var(--color-ink);
   font-size: var(--text-md);
-  transition:
-    border-color var(--duration-fast) ease,
-    box-shadow var(--duration-fast) ease;
+  transition: border-color var(--duration-fast) ease;
 }
 
 .receipt-row__field::placeholder {
@@ -228,7 +224,6 @@
 .receipt__address:focus {
   outline: none;
   border-color: var(--color-brand-600);
-  box-shadow: 0 0 0 3px var(--color-brand-100);
 }
 
 .receipt-row__name {
@@ -301,9 +296,12 @@
     padding-left: var(--space-3);
   }
 
+  .receipt__items {
+    gap: var(--space-2);
+  }
+
   .receipt-row {
     padding-bottom: 0;
-    border-bottom: 0;
   }
 
   .receipt-row__name {
