@@ -40,7 +40,7 @@ export function SelectedView({
   const isAudio = media.kind === 'audio';
 
   return (
-    <div className="page page--narrow stack view-enter">
+    <div className="page page--narrow stack">
       <header>
         <h1 ref={titleRef} tabIndex={-1} className="view-title">
           {isAudio ? 'Cek voice note-nya dulu' : 'Cek gambarnya dulu'}

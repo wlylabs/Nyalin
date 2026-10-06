@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { History, Plus } from 'lucide-react';
 import { Logo } from './Logo';
 import { Button } from './Button';
+import { InstallButton } from './InstallButton';
 import './Navbar.css';
 
 export function Navbar({ onStart, historyActive }: { onStart: () => void; historyActive: boolean }) {
@@ -9,9 +10,10 @@ export function Navbar({ onStart, historyActive }: { onStart: () => void; histor
     <header className="navbar">
       <nav className="navbar__inner" aria-label="Navigasi utama">
         <Link href="/" className="navbar__brand" aria-label="Nyalin, ke halaman awal">
-          <Logo size={30} />
+          <Logo size={30} draw />
         </Link>
         <div className="navbar__actions">
+          <InstallButton />
           <Link href="/riwayat" className="navbar__link" aria-current={historyActive ? 'page' : undefined}>
             <History aria-hidden="true" />
             <span>Riwayat</span>

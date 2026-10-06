@@ -15,14 +15,17 @@ export function ProcessingView({
   progress: ProcessProgress;
   onCancel: () => void;
 }) {
+  // Animasi pindai/gelombang hanya mengikuti progres nyata saat tahap mengenali.
+  const measured = progress.stage === 'recognizing' ? progress.progress : null;
+
   return (
-    <div className="page page--narrow stack view-enter" aria-busy="true">
+    <div className="page page--narrow stack" aria-busy="true">
       <h1 className="sr-only">{media.kind === 'audio' ? 'Sedang memproses voice note' : 'Sedang memproses gambar'}</h1>
       <ProcessingState progress={progress} kind={media.kind} />
       {media.kind === 'audio' ? (
-        <AudioPreview src={media.url} name={media.name} duration={media.duration} dimmed />
+        <AudioPreview src={media.url} name={media.name} duration={media.duration} listening={measured} />
       ) : (
-        <ImagePreview src={media.url} alt={`Gambar yang sedang dibaca: ${media.name}`} dimmed />
+        <ImagePreview src={media.url} alt={`Gambar yang sedang dibaca: ${media.name}`} dimmed scanning={measured} />
       )}
       <ActionBar label="Proses">
         <Button onClick={onCancel}>Batalkan</Button>

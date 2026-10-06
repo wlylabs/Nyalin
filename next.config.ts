@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { withSerwist } from '@serwist/turbopack';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -16,6 +17,11 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Service worker harus selalu dicek ulang agar update cepat sampai.
+        source: '/serwist/:path*',
+        headers: [{ key: 'Cache-Control', value: 'no-cache' }],
+      },
+      {
         // Runtime besar & tidak berubah per versi paket → cache lama.
         source: '/vendor/:path*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' }],
@@ -24,4 +30,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);

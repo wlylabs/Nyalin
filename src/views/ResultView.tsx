@@ -37,7 +37,7 @@ export function ResultView({
   const hasDuration = isAudio && media.duration !== null && Number.isFinite(media.duration);
 
   return (
-    <div className="page result-layout view-enter">
+    <div className="page result-layout">
       <section className="result-layout__media" aria-label={isAudio ? 'Voice note asli' : 'Gambar asli'}>
         {isAudio ? (
           <AudioPreview src={media.url} name={media.name} duration={media.duration} />
@@ -84,7 +84,13 @@ export function ResultView({
           onEdit={() => editorRef.current?.focus()}
           onAgain={onAgain}
         />
-        <ResultEditor ref={editorRef} value={result.text} onChange={onEdit} describedBy="result-hint" />
+        <ResultEditor
+          ref={editorRef}
+          value={result.text}
+          onChange={onEdit}
+          describedBy="result-hint"
+          reveal={!media.fromHistory}
+        />
         <p id="result-hint" className="result-hint">
           Teks bisa langsung diubah. Perubahan tersimpan otomatis di Riwayat perangkat ini.
         </p>

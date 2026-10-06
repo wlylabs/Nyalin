@@ -1,3 +1,4 @@
+import { useEffect, useState, type CSSProperties } from 'react';
 import { Mic, Upload } from 'lucide-react';
 import { ActionBar } from '../components/ActionBar';
 import { Button } from '../components/Button';
@@ -13,7 +14,18 @@ import { useNyalin } from '../state/NyalinProvider';
 import { useVoiceRecorder } from '../state/useVoiceRecorder';
 import type { NyalinErrorCode } from '../services/errors';
 
-export function HomeView({ onFile, selectionError }: { onFile: (f: File) => void; selectionError: NyalinErrorCode | null }) {
+/** Pembukaan bertahap hanya saat beranda pertama kali tampil; kembali ke beranda memakai View Transition. */
+let introPlayed = false;
+type RevealProps = { className?: string; style?: CSSProperties };
+const reveal = (i: number): RevealProps => ({ className: 'reveal', style: { '--reveal-index': i } as CSSProperties });
+
+export function HomeView({
+  onFile,
+  selectionError,
+}: {
+  onFile: (f: File) => void;
+  selectionError: NyalinErrorCode | null;
+}) {
   const { openFiles } = useFilePicker();
   const { inputMode, setInputMode, selectFile, reportError } = useNyalin();
   const canRecord = useBrowserSupport(supportsVoiceRecording);
@@ -22,33 +34,46 @@ export function HomeView({ onFile, selectionError }: { onFile: (f: File) => void
     onError: reportError,
   });
   const recording = recorder.status !== 'idle';
+  const [intro] = useState(() => !introPlayed);
+  useEffect(() => {
+    introPlayed = true;
+  }, []);
+  const r = (i: number): RevealProps => (intro ? reveal(i) : {});
 
   return (
-    <div className="page page--narrow stack home view-enter">
+    <div className="page page--narrow stack home">
       <section className="hero" aria-labelledby="hero-title">
-        <h1 id="hero-title" className="hero__title">
+        <h1 id="hero-title" className={['hero__title', r(0).className].filter(Boolean).join(' ')} style={r(0).style}>
           Ubah gambar dan suara jadi tulisan.
         </h1>
-        <p className="hero__subtitle">
+        <p className={['hero__subtitle', r(1).className].filter(Boolean).join(' ')} style={r(1).style}>
           Kirim foto, gambar tulisan, atau voice note. Nyalin akan mengubahnya menjadi teks yang bisa kamu edit dan
           salin.
         </p>
       </section>
 
-      {!recording && <ModeSwitch value={inputMode} onChange={setInputMode} />}
+      {!recording && (
+        <div {...r(2)}>
+          <ModeSwitch value={inputMode} onChange={setInputMode} />
+        </div>
+      )}
       {selectionError && <SelectionAlert code={selectionError} kind={inputMode} />}
 
       {recording ? (
         <RecorderPanel recorder={recorder} />
       ) : (
         <>
-          <UploadZone
-            kind={inputMode}
-            onFile={onFile}
-            onRecord={canRecord ? recorder.start : undefined}
-            id="upload"
-          />
-          <PrivacyNote kind={inputMode} />
+          <div {...r(3)}>
+            <UploadZone
+              kind={inputMode}
+              onFile={onFile}
+              onRecord={canRecord ? recorder.start : undefined}
+              id="upload"
+            />
+          </div>
+          <div {...r(4)}>
+            <PrivacyNote kind={inputMode} />
+          </div>
           <ActionBar mobileOnly label="Pilih file">
             {inputMode === 'image' ? (
               <>

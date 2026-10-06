@@ -16,7 +16,14 @@ export function ModeSwitch({ value, onChange }: { value: MediaKind; onChange: (v
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
   return (
-    <div className="mode-switch" role="radiogroup" aria-label="Jenis yang mau disalin">
+    <div
+      className="mode-switch"
+      role="radiogroup"
+      aria-label="Jenis yang mau disalin"
+      style={{ ['--active' as string]: OPTIONS.findIndex((o) => o.value === value) }}
+    >
+      {/* Penanda pilihan yang bergeser — pilihan juga ditandai aria-checked & warna teks. */}
+      <span className="mode-switch__thumb" aria-hidden="true" />
       {OPTIONS.map(({ value: v, label, Icon }, i) => {
         const checked = v === value;
         return (

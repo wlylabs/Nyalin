@@ -52,7 +52,7 @@ export function ErrorView({
   }
 
   return (
-    <div className="page page--narrow stack view-enter">
+    <div className="page page--narrow stack">
       <ErrorState code={code} kind={kind} />
       {media && <FileInfo name={media.name} size={media.size} kind={media.kind} />}
       <ActionBar label="Langkah berikutnya">

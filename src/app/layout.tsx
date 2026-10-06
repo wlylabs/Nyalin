@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import '@fontsource-variable/plus-jakarta-sans';
 import '../styles/global.css';
+import '../styles/motion.css';
 import '../views/views.css';
 import { AppShell } from './AppShell';
 
@@ -10,7 +11,9 @@ export const metadata: Metadata = {
   description:
     'Foto, kirim gambar, atau voice note. Nyalin jadiin tulisan yang bisa kamu edit, salin, dan unduh. Diproses langsung di perangkatmu.',
   applicationName: 'Nyalin',
-  manifest: '/manifest.webmanifest',
+  // iOS: buka dari layar utama tanpa bilah Safari, judul ikon "Nyalin".
+  appleWebApp: { capable: true, title: 'Nyalin', statusBarStyle: 'default' },
+  formatDetection: { telephone: false },
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },

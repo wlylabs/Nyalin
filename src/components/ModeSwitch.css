@@ -1,4 +1,5 @@
 .mode-switch {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2px;
@@ -8,7 +9,21 @@
   background: var(--color-surface);
 }
 
+.mode-switch__thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 4px);
+  border-radius: var(--radius-full);
+  background: var(--color-brand-50);
+  box-shadow: inset 0 0 0 1px var(--color-brand-100);
+  transform: translateX(calc(var(--active, 0) * (100% + 2px)));
+  transition: transform var(--duration-medium4) var(--ease-emphasized);
+}
+
 .mode-switch__option {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -31,16 +46,14 @@
   height: 18px;
 }
 
-.mode-switch__option:hover {
-  background: var(--color-surface-hover);
+.mode-switch__option[aria-checked='false']:hover {
   color: var(--color-ink);
 }
 
-/* Terpilih: warna + latar + ikon tetap, bukan hanya warna. */
+/* Terpilih: penanda latar + warna + teks tebal, bukan hanya warna. */
 .mode-switch__option[aria-checked='true'] {
-  background: var(--color-brand-50);
   color: var(--color-brand-700);
-  box-shadow: inset 0 0 0 1px var(--color-brand-100);
+  font-weight: var(--weight-bold);
 }
 
 .mode-switch__option:focus-visible {

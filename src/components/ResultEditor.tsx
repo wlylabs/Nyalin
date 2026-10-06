@@ -9,8 +9,12 @@ export interface ResultEditorHandle {
  * Editor hasil: textarea biasa (paling andal untuk mobile, IME, dan pembaca layar),
  * tumbuh mengikuti isi agar tidak ada scroll ganda.
  */
-export const ResultEditor = forwardRef<ResultEditorHandle, { value: string; onChange: (v: string) => void; describedBy?: string }>(
-  function ResultEditor({ value, onChange, describedBy }, ref) {
+export const ResultEditor = forwardRef<
+  ResultEditorHandle,
+  { value: string; onChange: (v: string) => void; describedBy?: string; reveal?: boolean }
+>(
+  /** `reveal`: teks muncul dari atas ke bawah sekali, seperti hasil pindaian — hanya untuk hasil baru. */
+  function ResultEditor({ value, onChange, describedBy, reveal = false }, ref) {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const id = useId();
 
@@ -32,7 +36,7 @@ export const ResultEditor = forwardRef<ResultEditorHandle, { value: string; onCh
     }, [value]);
 
     return (
-      <div className="result-editor">
+      <div className={`result-editor${reveal ? ' text-reveal' : ''}`}>
         <label htmlFor={id} className="sr-only">
           Teks hasil Nyalin, bisa diedit
         </label>

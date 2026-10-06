@@ -1,0 +1,165 @@
+/*
+ * Motion "cinematic" Nyalin.
+ * Prinsip (Material 3 motion + pola shared-element dari View Transitions):
+ * 1. Kesinambungan — gambar/voice note yang sama "berpindah" antar tahap, tidak diganti.
+ * 2. Arah — maju (pilih → proses → hasil) naik; mundur (batal, mulai ulang) turun.
+ * 3. Status — animasi yang bergerak selalu mewakili progres nyata (scan, gelombang).
+ * Semua dimatikan saat prefers-reduced-motion.
+ */
+
+/* ── View Transitions antar tahap ─────────────────────────────────────── */
+
+/* Navbar & action bar tetap diam; hanya isinya yang berubah. */
+.navbar {
+  view-transition-name: nyalin-navbar;
+}
+
+::view-transition-group(nyalin-navbar),
+::view-transition-old(nyalin-navbar),
+::view-transition-new(nyalin-navbar) {
+  animation: none;
+}
+
+::view-transition-old(.vt-forward) {
+  animation: var(--duration-short4) var(--ease-emphasized-accelerate) both vt-out-up;
+}
+
+::view-transition-new(.vt-forward) {
+  animation: var(--duration-medium4) var(--ease-emphasized-decelerate) var(--duration-short2) both vt-in-up;
+}
+
+::view-transition-old(.vt-back) {
+  animation: var(--duration-short4) var(--ease-emphasized-accelerate) both vt-out-down;
+}
+
+::view-transition-new(.vt-back) {
+  animation: var(--duration-medium4) var(--ease-emphasized-decelerate) var(--duration-short2) both vt-in-down;
+}
+
+::view-transition-old(.vt-fade) {
+  animation: var(--duration-short4) var(--ease-standard) both vt-fade-out;
+}
+
+::view-transition-new(.vt-fade) {
+  animation: var(--duration-medium2) var(--ease-standard) both vt-fade-in;
+}
+
+/* Shared element: pratinjau media berpindah & berubah ukuran secara mulus. */
+::view-transition-group(.vt-morph) {
+  animation-duration: var(--duration-long2);
+  animation-timing-function: var(--ease-emphasized);
+}
+
+::view-transition-old(.vt-morph),
+::view-transition-new(.vt-morph) {
+  height: 100%;
+  object-fit: cover;
+  animation-duration: var(--duration-medium2);
+}
+
+@keyframes vt-out-up {
+  to {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes vt-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@keyframes vt-out-down {
+  to {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes vt-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+}
+
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ── Pembukaan beranda (sekali per kunjungan) ─────────────────────────── */
+
+.reveal {
+  animation: reveal-up var(--duration-long2) var(--ease-emphasized-decelerate) both;
+  animation-delay: calc(var(--reveal-index, 0) * 70ms + 120ms);
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+/* ── Logo: goresan tangan digambar, lalu berubah jadi garis teks ──────── */
+
+.logo-mark--draw .logo-mark__stroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: logo-draw var(--duration-extra-long2) var(--ease-emphasized) 150ms forwards;
+}
+
+.logo-mark--draw .logo-mark__line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: logo-draw var(--duration-medium4) var(--ease-emphasized-decelerate) 800ms forwards;
+}
+
+@keyframes logo-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ── Reveal hasil: teks "muncul" dari atas ke bawah seperti dipindai ──── */
+
+.text-reveal {
+  animation: text-reveal var(--duration-extra-long2) var(--ease-emphasized-decelerate) var(--duration-medium2) both;
+}
+
+@keyframes text-reveal {
+  from {
+    clip-path: inset(0 0 100% 0 round var(--radius-lg));
+    opacity: 0.4;
+  }
+  to {
+    clip-path: inset(0 0 0 0 round var(--radius-lg));
+    opacity: 1;
+  }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  .logo-mark--draw .logo-mark__stroke,
+  .logo-mark--draw .logo-mark__line {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+}

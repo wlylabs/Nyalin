@@ -91,10 +91,22 @@
   --content-narrow: 640px;
   --navbar-height: 60px;
 
-  /* Motion */
+  /* Motion — token Material 3 (material-web). Gerak dipakai untuk kesinambungan & status, bukan hiasan. */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --duration-short2: 100ms;
+  --duration-short4: 200ms;
+  --duration-medium2: 300ms;
+  --duration-medium4: 400ms;
+  --duration-long2: 500ms;
+  --duration-long4: 600ms;
+  --duration-extra-long2: 800ms;
+
   --duration-fast: 120ms;
-  --duration-base: 200ms;
-  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-base: var(--duration-short4);
+  --ease-out: var(--ease-emphasized-decelerate);
 
   --z-sticky: 10;
   --z-toast: 50;
@@ -110,5 +122,12 @@
   :root {
     --duration-fast: 0ms;
     --duration-base: 0ms;
+    --duration-short2: 0ms;
+    --duration-short4: 0ms;
+    --duration-medium2: 0ms;
+    --duration-medium4: 0ms;
+    --duration-long2: 0ms;
+    --duration-long4: 0ms;
+    --duration-extra-long2: 0ms;
   }
 }

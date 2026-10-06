@@ -1,7 +1,19 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from 'react';
-import { initialState, nyalinReducer, type SelectedMedia } from './nyalinReducer';
+import {
+  addTransitionType,
+  createContext,
+  startTransition,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { initialState, nyalinReducer, type NyalinAction, type SelectedMedia } from './nyalinReducer';
 import { historyStore, type HistoryEntry } from './historyStore';
 import { NyalinError, isAbortError, type NyalinErrorCode } from '../services/errors';
 import { BlurryResultError, ocrProvider, runOcr } from '../services/ocr';
@@ -35,6 +47,17 @@ export interface SelectOptions {
 /** Seluruh alur utama Nyalin: pilih file → proses → hasil → edit. Untuk gambar dan voice note. */
 function useNyalinController() {
   const [state, dispatch] = useReducer(nyalinReducer, initialState);
+
+  /**
+   * Perpindahan tahap dibungkus transition + tipe arah, sehingga <ViewTransition>
+   * menganimasikan "maju" (naik) atau "mundur" (turun). Update kecil (progres, edit) tidak.
+   */
+  const go = useCallback((action: NyalinAction, direction: 'forward' | 'back' = 'forward') => {
+    startTransition(() => {
+      addTransitionType(direction);
+      dispatch(action);
+    });
+  }, []);
   const [inputMode, setInputMode] = useState<MediaKind>('image');
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -84,7 +107,7 @@ function useNyalinController() {
           if (duration !== null) dispatch({ type: 'set-duration', url, duration });
         });
       }
-      dispatch({
+      go({
         type: 'select',
         media: {
           kind,
@@ -97,7 +120,7 @@ function useNyalinController() {
       });
       (kind === 'audio' ? transcribeProvider : ocrProvider).warmUp?.();
     },
-    [flushSave],
+    [flushSave, go],
   );
 
   const saveToHistory = useCallback(async (media: SelectedMedia, text: string) => {
@@ -113,7 +136,7 @@ function useNyalinController() {
 
     const controller = new AbortController();
     abortRef.current = controller;
-    dispatch({ type: 'start' });
+    go({ type: 'start' });
     const onProgress = (progress: ProcessProgress) => {
       if (!controller.signal.aborted) dispatch({ type: 'progress', progress });
     };
@@ -145,27 +168,27 @@ function useNyalinController() {
       if (controller.signal.aborted) return;
       const historyId = await saveToHistory(media, text);
       if (controller.signal.aborted) return;
-      dispatch({ type: 'success', result: { text, lowConfidence, historyId } });
+      go({ type: 'success', result: { text, lowConfidence, historyId } });
     } catch (error) {
       if (controller.signal.aborted || isAbortError(error)) return;
       if (error instanceof BlurryResultError) {
-        dispatch({ type: 'fail', code: 'blurry', partialText: error.text });
+        go({ type: 'fail', code: 'blurry', partialText: error.text });
       } else if (error instanceof NyalinError) {
-        dispatch({ type: 'fail', code: error.code });
+        go({ type: 'fail', code: error.code });
       } else {
         console.error(error);
-        dispatch({ type: 'fail', code: 'process-failed' });
+        go({ type: 'fail', code: 'process-failed' });
       }
     } finally {
       if (abortRef.current === controller) abortRef.current = null;
     }
-  }, [saveToHistory]);
+  }, [saveToHistory, go]);
 
   const cancel = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = null;
-    dispatch({ type: 'cancel' });
-  }, []);
+    go({ type: 'cancel' }, 'back');
+  }, [go]);
 
   /** Dari layar error: lihat hasil apa adanya (buram) atau ketik sendiri (kosong). */
   const showPartial = useCallback(async () => {
@@ -173,8 +196,8 @@ function useNyalinController() {
     if (current.phase !== 'error' || !current.media) return;
     const text = current.partialText ?? '';
     const historyId = text ? await saveToHistory(current.media, text) : null;
-    dispatch({ type: 'show-partial', historyId });
-  }, [saveToHistory]);
+    go({ type: 'show-partial', historyId });
+  }, [saveToHistory, go]);
 
   const editText = useCallback(
     (text: string) => {
@@ -214,7 +237,7 @@ function useNyalinController() {
       flushSave();
       abortRef.current?.abort();
       const kind = entry.kind ?? 'image';
-      dispatch({
+      go({
         type: 'open',
         media: {
           kind,
@@ -227,15 +250,15 @@ function useNyalinController() {
         result: { text: entry.text, lowConfidence: false, historyId: entry.id },
       });
     },
-    [flushSave],
+    [flushSave, go],
   );
 
   const reset = useCallback(() => {
     flushSave();
     abortRef.current?.abort();
     abortRef.current = null;
-    dispatch({ type: 'reset' });
-  }, [flushSave]);
+    go({ type: 'reset' }, 'back');
+  }, [flushSave, go]);
 
   return useMemo(
     () => ({

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { ViewTransition, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNyalin } from '../state/NyalinProvider';
 import { HomeView } from './HomeView';
 import { SelectedView } from './SelectedView';
@@ -8,8 +8,28 @@ import { ProcessingView } from './ProcessingView';
 import { ResultView } from './ResultView';
 import { ErrorView } from './ErrorView';
 
-/** Halaman utama: satu layar per tahap alur (kosong → dipilih → proses → hasil / error). */
+/** Kelas animasi per arah (lihat styles/motion.css). */
+const STAGE_MOTION = {
+  forward: 'vt-forward',
+  back: 'vt-back',
+  default: 'vt-fade',
+};
+
+/**
+ * Halaman utama: satu layar per tahap alur (kosong → dipilih → proses → hasil / error).
+ * Setiap tahap masuk/keluar lewat View Transition; pratinjau media (nama "nyalin-media")
+ * menjadi shared element sehingga berpindah posisi dengan mulus antar tahap.
+ */
 export function MainFlow() {
+  const nyalin = useNyalin();
+  return (
+    <ViewTransition key={nyalin.state.phase} enter={STAGE_MOTION} exit={STAGE_MOTION} default="none">
+      <Stage />
+    </ViewTransition>
+  );
+}
+
+function Stage(): ReactNode {
   const nyalin = useNyalin();
   const { state } = nyalin;
 

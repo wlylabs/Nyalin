@@ -1,11 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, type ReactNode } from 'react';
+import { Suspense, useCallback, useEffect, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Navbar } from '../components/Navbar';
 import { FilePickerProvider, useFilePicker } from '../components/FilePicker';
 import { ToastProvider } from '../components/Toast';
 import { NyalinProvider, useNyalin } from '../state/NyalinProvider';
+import { PwaBridge } from './PwaBridge';
 
 /** Provider client & kerangka halaman. State alur hidup di sini agar bertahan antar halaman. */
 export function AppShell({ children }: { children: ReactNode }) {
@@ -14,6 +15,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       <NyalinProvider>
         <FileRouting>
           <Shell>{children}</Shell>
+          <Suspense fallback={null}>
+            <PwaBridge />
+          </Suspense>
         </FileRouting>
       </NyalinProvider>
     </ToastProvider>

@@ -47,7 +47,58 @@
   font-size: var(--text-sm);
 }
 
-.audio-preview.is-dimmed .audio-preview__player {
-  opacity: 0.5;
-  pointer-events: none;
+/* Gelombang "mendengarkan": batang terisi = bagian audio yang sudah ditranskripsi. */
+.wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  max-width: 420px;
+  height: 48px;
+}
+
+.wave span {
+  flex: 1;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-line-strong);
+  transform-origin: center;
+  transition: background-color var(--duration-medium2) var(--ease-standard);
+}
+
+.wave span.is-done {
+  background: var(--color-brand-600);
+}
+
+.wave span.is-current {
+  background: var(--color-brand-500);
+  animation: wave-pulse 900ms var(--ease-standard) infinite alternate;
+}
+
+/* Sebelum progres terukur (mis. mengunduh model): gelombang bergerak pelan dari kiri ke kanan. */
+.wave--waiting span {
+  animation: wave-wait 1.4s var(--ease-standard) infinite;
+  animation-delay: calc(var(--i) * 35ms);
+}
+
+@keyframes wave-pulse {
+  to {
+    opacity: 0.45;
+  }
+}
+
+@keyframes wave-wait {
+  0%,
+  100% {
+    background: var(--color-line-strong);
+  }
+  40% {
+    background: var(--color-brand-100);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave span {
+    animation: none !important;
+  }
 }
