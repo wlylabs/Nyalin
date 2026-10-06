@@ -11,3 +11,6 @@ test-results
 public/vendor
 .next
 next-env.d.ts
+e2e/fixtures/.generated
+playwright-report
+blob-report

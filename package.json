@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit && tsc --noEmit -p src/sw",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
@@ -25,6 +26,8 @@
     "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.56.1",
     "@tesseract.js-data/eng": "^1.0.0",
     "@tesseract.js-data/ind": "^1.0.0",
     "@testing-library/jest-dom": "^7.0.1",
@@ -36,6 +39,7 @@
     "@vitejs/plugin-react": "^6.1.2",
     "esbuild": "^0.28.2",
     "jsdom": "^29.1.1",
+    "playwright-core": "^1.56.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.2",
     "vitest": "^5.0.3"

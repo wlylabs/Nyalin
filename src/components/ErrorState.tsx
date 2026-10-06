@@ -7,6 +7,7 @@ import './ErrorState.css';
 
 const ICONS: Partial<Record<NyalinErrorCode, typeof CircleAlert>> = {
   network: WifiOff,
+  'rate-limited': Timer,
   unsupported: FileWarning,
   'too-large': FileWarning,
   'empty-file': FileWarning,

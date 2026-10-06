@@ -63,6 +63,11 @@ function useNyalinController() {
   stateRef.current = state;
 
   const abortRef = useRef<AbortController | null>(null);
+  /** Hentikan proses yang sedang berjalan (bila ada). */
+  const abortRunning = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+  }, []);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingSave = useRef<{ id: string; text: string } | null>(null);
   const savingManual = useRef(false);
@@ -100,7 +105,7 @@ function useNyalinController() {
         return;
       }
       flushSave();
-      abortRef.current?.abort();
+      abortRunning();
       const url = URL.createObjectURL(file);
       if (kind === 'audio' && options.duration === undefined) {
         void probeAudioDuration(url).then((duration) => {
@@ -120,7 +125,7 @@ function useNyalinController() {
       });
       (kind === 'audio' ? transcribeProvider : ocrProvider).warmUp?.();
     },
-    [flushSave, go],
+    [flushSave, go, abortRunning],
   );
 
   const saveToHistory = useCallback(async (media: SelectedMedia, text: string) => {
@@ -133,6 +138,8 @@ function useNyalinController() {
     if (current.phase !== 'selected' && current.phase !== 'error') return;
     let media = current.media;
     if (!media || media.fromHistory) return;
+    // Klik ganda: state belum berganti (transition), tapi proses sudah berjalan.
+    if (abortRef.current && !abortRef.current.signal.aborted) return;
 
     const controller = new AbortController();
     abortRef.current = controller;
@@ -185,18 +192,23 @@ function useNyalinController() {
   }, [saveToHistory, go]);
 
   const cancel = useCallback(() => {
-    abortRef.current?.abort();
-    abortRef.current = null;
+    abortRunning();
     go({ type: 'cancel' }, 'back');
-  }, [go]);
+  }, [go, abortRunning]);
 
   /** Dari layar error: lihat hasil apa adanya (buram) atau ketik sendiri (kosong). */
+  const showingPartial = useRef(false);
   const showPartial = useCallback(async () => {
     const current = stateRef.current;
-    if (current.phase !== 'error' || !current.media) return;
-    const text = current.partialText ?? '';
-    const historyId = text ? await saveToHistory(current.media, text) : null;
-    go({ type: 'show-partial', historyId });
+    if (current.phase !== 'error' || !current.media || showingPartial.current) return;
+    showingPartial.current = true;
+    try {
+      const text = current.partialText ?? '';
+      const historyId = text ? await saveToHistory(current.media, text) : null;
+      go({ type: 'show-partial', historyId });
+    } finally {
+      showingPartial.current = false;
+    }
   }, [saveToHistory, go]);
 
   const editText = useCallback(
@@ -235,7 +247,7 @@ function useNyalinController() {
   const openHistoryEntry = useCallback(
     (entry: HistoryEntry) => {
       flushSave();
-      abortRef.current?.abort();
+      abortRunning();
       const kind = entry.kind ?? 'image';
       go({
         type: 'open',
@@ -250,15 +262,14 @@ function useNyalinController() {
         result: { text: entry.text, lowConfidence: false, historyId: entry.id },
       });
     },
-    [flushSave, go],
+    [flushSave, go, abortRunning],
   );
 
   const reset = useCallback(() => {
     flushSave();
-    abortRef.current?.abort();
-    abortRef.current = null;
+    abortRunning();
     go({ type: 'reset' }, 'back');
-  }, [flushSave, go]);
+  }, [flushSave, go, abortRunning]);
 
   return useMemo(
     () => ({

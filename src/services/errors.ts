@@ -9,6 +9,7 @@ export type NyalinErrorCode =
   | 'empty-result'
   | 'process-failed'
   | 'network'
+  | 'rate-limited'
   | 'mic-denied'
   | 'mic-unavailable';
 

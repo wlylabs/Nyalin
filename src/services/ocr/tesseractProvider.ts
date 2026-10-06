@@ -68,17 +68,23 @@ export function createTesseractProvider(): OcrProvider {
       report = (stage, progress) => onProgress({ stage, progress });
       onProgress({ stage: 'loading-engine', progress: null });
 
-      const onAbort = () => {
-        // Tesseract tidak punya pembatalan per job; hentikan worker, nanti dibuat ulang.
-        void resetWorker();
-      };
+      // Tesseract tidak punya pembatalan per job: hentikan worker (dibuat ulang nanti) dan
+      // langsung tolak promise — job yang dihentikan tidak dijamin pernah selesai.
+      let onAbort = () => {};
+      const aborted = new Promise<never>((_, reject) => {
+        onAbort = () => {
+          void resetWorker();
+          reject(abortError());
+        };
+      });
+      aborted.catch(() => {});
       signal.addEventListener('abort', onAbort, { once: true });
 
       try {
-        const worker = await getWorker();
+        const worker = await Promise.race([getWorker(), aborted]);
         if (signal.aborted) throw abortError();
         onProgress({ stage: 'recognizing', progress: 0 });
-        const { data } = await worker.recognize(image);
+        const { data } = await Promise.race([worker.recognize(image), aborted]);
         if (signal.aborted) throw abortError();
         return { text: data.text ?? '', confidence: Number.isFinite(data.confidence) ? data.confidence : null };
       } catch (error) {

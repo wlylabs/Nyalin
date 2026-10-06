@@ -68,6 +68,11 @@ const IMAGE: Record<Exclude<NyalinErrorCode, 'mic-denied' | 'mic-unavailable'>, 
     description: 'Nyalin perlu koneksi internet untuk menyiapkan pembaca tulisan. Periksa koneksimu, lalu coba lagi.',
     retryable: true,
   },
+  'rate-limited': {
+    title: 'Sedang terlalu ramai',
+    description: 'Batas pemakaian per jam sudah tercapai. Coba lagi beberapa saat lagi.',
+    retryable: true,
+  },
 };
 
 const AUDIO: Record<NyalinErrorCode, ErrorCopy> = {
@@ -125,6 +130,11 @@ const AUDIO: Record<NyalinErrorCode, ErrorCopy> = {
     title: 'Koneksi bermasalah',
     description:
       'Pemakaian pertama perlu koneksi internet untuk mengunduh model pengenal suara. Periksa koneksimu, lalu coba lagi.',
+    retryable: true,
+  },
+  'rate-limited': {
+    title: 'Sedang terlalu ramai',
+    description: 'Batas pemakaian per jam sudah tercapai. Coba lagi beberapa saat lagi.',
     retryable: true,
   },
   'mic-denied': {

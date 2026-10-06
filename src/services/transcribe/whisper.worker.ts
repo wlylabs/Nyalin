@@ -46,24 +46,33 @@ async function createPipeline(config: WorkerConfig, id: number) {
     post({ type: 'loading', id, loaded, total });
   };
 
-  // Encoder fp32 + decoder q4: akurasi encoder tetap terjaga, ukuran unduhan tetap wajar.
-  const dtype = { encoder_model: 'fp32', decoder_model_merged: 'q4' } as const;
-  const useGpu = await hasWebGPU();
-  try {
-    const pipe = await pipeline('automatic-speech-recognition', config.model, {
-      device: useGpu ? 'webgpu' : 'wasm',
-      dtype,
+  /**
+   * - WebGPU: encoder fp32 + decoder q4 (seperti contoh resmi realtime-whisper-webgpu);
+   *   q8 justru lambat di WebGPU. Unduhan ±207 MB untuk whisper-base.
+   * - WASM (sebagian besar ponsel): q8 untuk semua bagian, unduhan ±75 MB — jalur cepat di CPU,
+   *   sama dengan default xenova/whisper-web.
+   */
+  const GPU_DTYPE = { encoder_model: 'fp32', decoder_model_merged: 'q4' } as const;
+  const load = (device: 'webgpu' | 'wasm') =>
+    pipeline('automatic-speech-recognition', config.model, {
+      device,
+      dtype: device === 'webgpu' ? GPU_DTYPE : 'q8',
       progress_callback,
     });
-    post({ type: 'ready', id, device: useGpu ? 'webgpu' : 'wasm' });
-    return pipe;
-  } catch (error) {
-    if (!useGpu) throw error;
-    // WebGPU kadang tersedia tapi tidak stabil di perangkat tertentu → jatuh ke WASM.
-    const pipe = await pipeline('automatic-speech-recognition', config.model, { device: 'wasm', dtype, progress_callback });
-    post({ type: 'ready', id, device: 'wasm' });
-    return pipe;
+
+  if (await hasWebGPU()) {
+    try {
+      const pipe = await load('webgpu');
+      post({ type: 'ready', id, device: 'webgpu' });
+      return pipe;
+    } catch {
+      // WebGPU kadang tersedia tapi tidak stabil di perangkat tertentu → jatuh ke WASM.
+      fileProgress.clear();
+    }
   }
+  const pipe = await load('wasm');
+  post({ type: 'ready', id, device: 'wasm' });
+  return pipe;
 }
 
 function getPipeline(config: WorkerConfig, id: number) {

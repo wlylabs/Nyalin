@@ -17,7 +17,7 @@
   /* Neutral */
   --color-ink: #17201e; /* teks utama — 15:1 */
   --color-ink-muted: #4f5b58; /* teks sekunder — 7:1 */
-  --color-ink-subtle: #6b7774; /* teks tersier — 4.7:1 */
+  --color-ink-subtle: #5f6b68; /* teks tersier — 5.5:1 di putih, 5.1:1 di latar sunken */
   --color-line: #dfe4e2;
   --color-line-strong: #c4ccc9;
   --color-surface: #ffffff;

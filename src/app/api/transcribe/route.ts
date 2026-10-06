@@ -8,14 +8,48 @@
  *   TRANSCRIBE_API_URL   default https://api.openai.com/v1/audio/transcriptions
  *                        (Groq: https://api.groq.com/openai/v1/audio/transcriptions)
  *   TRANSCRIBE_MODEL     default whisper-1 (Groq: whisper-large-v3)
+ *   TRANSCRIBE_RATE_LIMIT  permintaan per IP per jam, default 30
+ *
+ * Perlindungan biaya: hanya menerima permintaan dari situs ini sendiri (header Origin)
+ * dan membatasi jumlah permintaan per IP.
  */
 import { MAX_AUDIO_SIZE, validateAudioFile } from '@/lib/audio';
+import { clientKey, createRateLimiter } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
+
+const rateLimit = createRateLimiter({
+  limit: Number(process.env.TRANSCRIBE_RATE_LIMIT) || 30,
+  windowMs: 60 * 60 * 1000,
+});
+
+/** Tolak permintaan lintas situs (mis. halaman lain yang memakai kuota API kita). */
+function isSameOrigin(request: Request): boolean {
+  const origin = request.headers.get('origin');
+  if (!origin) return false;
+  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host');
+  try {
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
+}
 
 const LANGUAGE_CODES: Record<string, string | undefined> = { id: 'id', en: 'en', auto: undefined };
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) {
+    return Response.json({ error: 'Permintaan tidak diizinkan.' }, { status: 403 });
+  }
+
+  const limited = rateLimit(clientKey(request.headers));
+  if (!limited.ok) {
+    return Response.json(
+      { error: 'Terlalu banyak permintaan. Coba lagi nanti.' },
+      { status: 429, headers: { 'Retry-After': String(limited.retryAfter) } },
+    );
+  }
+
   const apiKey = process.env.TRANSCRIBE_API_KEY;
   if (!apiKey) {
     return Response.json({ error: 'Transkripsi server belum dikonfigurasi.' }, { status: 503 });

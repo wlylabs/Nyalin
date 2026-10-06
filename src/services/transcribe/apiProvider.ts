@@ -30,6 +30,7 @@ export function createApiProvider(endpoint = '/api/transcribe'): TranscribeProvi
 
       if (response.status === 413) throw new NyalinError('too-large');
       if (response.status === 415) throw new NyalinError('unsupported');
+      if (response.status === 429) throw new NyalinError('rate-limited');
       if (!response.ok) throw new NyalinError(response.status >= 500 ? 'process-failed' : 'network');
       const json = (await response.json().catch(() => ({}))) as { text?: unknown };
       return { text: typeof json.text === 'string' ? json.text : '' };
