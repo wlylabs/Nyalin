@@ -86,6 +86,30 @@ test.describe('Nota digital', () => {
     await expect(page.getByRole('textbox', { name: 'Nama barang 1' })).toHaveValue('');
   });
 
+  test('nota kosong tidak bisa disimpan sebagai gambar, dibagikan, disalin, atau dicetak', async ({ page }) => {
+    await page.goto('/');
+    // Nama toko & jumlah saja belum dianggap isi nota.
+    await page.getByRole('textbox', { name: 'Nama toko', exact: true }).fill('Toko Berkah');
+    await page.getByRole('textbox', { name: 'Jumlah barang 1' }).fill('3');
+    const actions = ['Simpan gambar', 'Cetak / PDF', /^Salin( nota)?$/, 'Bagikan'] as const;
+    for (const name of actions) {
+      const button = page.getByRole('button', { name }).filter({ visible: true }).first();
+      await expect(button).toBeDisabled();
+    }
+    await expect(page.getByText(/Isi minimal satu barang/)).toBeVisible();
+
+    await page.getByRole('textbox', { name: 'Nama barang 1' }).fill('Teh botol');
+    for (const name of actions) {
+      await expect(page.getByRole('button', { name }).filter({ visible: true }).first()).toBeEnabled();
+    }
+    await expect(page.getByText(/Isi minimal satu barang/)).toBeHidden();
+  });
+
+  test('tombol "Nota baru" hanya satu yang tampil', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('button', { name: 'Nota baru' }).filter({ visible: true })).toHaveCount(1);
+  });
+
   test('riwayat kosong mengarah ke nota baru', async ({ page }) => {
     await page.goto('/riwayat');
     await expect(page.getByText('Belum ada riwayat')).toBeVisible();

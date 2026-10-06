@@ -66,6 +66,12 @@ export function emptyItem(): ReceiptItem {
 
 export const itemSubtotal = (item: ReceiptItem) => Math.round(item.qty * item.price);
 
+/** Barang yang benar-benar diisi (nama atau harga); baris kosong diabaikan. */
+export const filledItems = (items: ReceiptItem[]) => items.filter((i) => i.name.trim() || i.price > 0);
+
+/** Nota tanpa satu pun barang yang diisi — belum layak disimpan sebagai gambar, dibagikan, atau dicetak. */
+export const isReceiptEmpty = (receipt: Receipt) => filledItems(receipt.items).length === 0;
+
 /** Jumlah semua subtotal barang (sebelum diskon). */
 export function receiptTotal(items: ReceiptItem[]): number {
   return items.reduce((sum, item) => sum + itemSubtotal(item), 0);
