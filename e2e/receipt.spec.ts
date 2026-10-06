@@ -51,7 +51,7 @@ test.describe('Nota digital', () => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Buat nota manual' }).click();
     await expect(page.getByRole('heading', { name: 'Nota baru' })).toBeVisible();
-    await expect(page.getByRole('textbox', { name: 'No. nota' })).toHaveValue('0001');
+    await expect(page.getByText(/^No\. 0001 · \d+ \w+ \d{4}$/)).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'Nama barang 1' })).toBeVisible();
     await expectAccessible(page);
 
@@ -73,7 +73,7 @@ test.describe('Nota digital', () => {
     await page.getByRole('button', { name: 'Nota baru' }).filter({ visible: true }).first().click();
     await page.getByRole('button', { name: 'Buat nota manual' }).click();
     await expect(page.getByRole('textbox', { name: 'Nama toko', exact: true })).toHaveValue('Toko Berkah');
-    await expect(page.getByRole('textbox', { name: 'No. nota' })).toHaveValue('0002');
+    await expect(page.getByText(/^No\. 0002 · /)).toBeVisible();
 
     await page.getByRole('link', { name: 'Riwayat' }).click();
     await expect(page.getByText(/No\. 0001 · Rp14\.000/)).toBeVisible();

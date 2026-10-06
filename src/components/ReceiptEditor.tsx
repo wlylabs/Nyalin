@@ -7,6 +7,7 @@ import { Modal } from './Modal';
 import {
   emptyItem,
   formatQty,
+  formatReceiptDate,
   formatRupiah,
   itemSubtotal,
   normalizeReceipt,
@@ -20,17 +21,6 @@ import {
 } from '../lib/receipt';
 import { saveStoreProfile } from '../lib/storeProfile';
 import './ReceiptEditor.css';
-
-/** Tanggal (ms) ↔ nilai <input type="date"> dalam zona waktu lokal. */
-function toDateInput(ms: number): string {
-  const d = new Date(ms);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-function fromDateInput(value: string): number | null {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12).getTime() : null;
-}
 
 const rupiahField = {
   inputMode: 'numeric' as const,
@@ -160,44 +150,24 @@ export function ReceiptEditor({
             placeholder="Alamat / no. HP toko (opsional)"
             autoComplete="off"
           />
+          {/* Nomor & tanggal terisi otomatis (tanggal hari ini, atau tanggal yang terbaca di struk). */}
+          <p className="receipt__auto">
+            {full.number && <>No. {full.number} · </>}
+            {formatReceiptDate(full.date)}
+          </p>
         </div>
       </div>
 
-      <div className="receipt__meta">
-        <div className="receipt-field">
-          <label htmlFor={fieldId('number')}>No. nota</label>
-          <input
-            id={fieldId('number')}
-            className="receipt-row__field"
-            value={full.number}
-            onChange={(e) => update({ number: e.target.value })}
-            autoComplete="off"
-          />
-        </div>
-        <div className="receipt-field">
-          <label htmlFor={fieldId('date')}>Tanggal</label>
-          <input
-            id={fieldId('date')}
-            type="date"
-            className="receipt-row__field"
-            value={toDateInput(full.date)}
-            onChange={(e) => {
-              const date = fromDateInput(e.target.value);
-              if (date !== null) update({ date });
-            }}
-          />
-        </div>
-        <div className="receipt-field receipt-field--wide">
-          <label htmlFor={fieldId('customer')}>Kepada</label>
-          <input
-            id={fieldId('customer')}
-            className="receipt-row__field"
-            value={full.customer}
-            onChange={(e) => update({ customer: e.target.value })}
-            placeholder="Nama pembeli (opsional)"
-            autoComplete="off"
-          />
-        </div>
+      <div className="receipt-field">
+        <label htmlFor={fieldId('customer')}>Kepada</label>
+        <input
+          id={fieldId('customer')}
+          className="receipt-row__field"
+          value={full.customer}
+          onChange={(e) => update({ customer: e.target.value })}
+          placeholder="Nama pembeli (opsional)"
+          autoComplete="off"
+        />
       </div>
 
       <div className="receipt__columns" aria-hidden="true">
