@@ -1,17 +1,19 @@
-import { useEffect, useId, useRef, useState, type InputHTMLAttributes } from 'react';
-import { Plus, ReceiptText, RefreshCw, Trash2 } from 'lucide-react';
+import { useEffect, useId, useRef, useState } from 'react';
+import { Plus, ReceiptText, Trash2 } from 'lucide-react';
 import { Button } from './Button';
 import { IconButton } from './IconButton';
 import { InlineAlert } from './InlineAlert';
-import { Modal } from './Modal';
+import { ItemNameField } from './ItemNameField';
+import { NumberField, rupiahField } from './NumberField';
+import { ProductShortcuts } from './ProductShortcuts';
 import {
   emptyItem,
   formatQty,
+  formatReceiptDate,
   formatRupiah,
   itemSubtotal,
   normalizeReceipt,
   parseQtyInput,
-  parseRupiahInput,
   receiptChange,
   receiptGrandTotal,
   receiptTotal,
@@ -19,82 +21,17 @@ import {
   type ReceiptItem,
 } from '../lib/receipt';
 import { saveStoreProfile } from '../lib/storeProfile';
+import { productStore, type SavedProduct } from '../state/productStore';
 import './ReceiptEditor.css';
 
-/** Tanggal (ms) ↔ nilai <input type="date"> dalam zona waktu lokal. */
-function toDateInput(ms: number): string {
-  const d = new Date(ms);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-function fromDateInput(value: string): number | null {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12).getTime() : null;
-}
-
-const rupiahField = {
-  inputMode: 'numeric' as const,
-  format: (v: number) => (v ? formatRupiah(v) : ''),
-  parse: (s: string) => parseRupiahInput(s),
-  placeholder: 'Rp0',
-};
-
-/**
- * Input angka yang menyimpan teks ketikan selama fokus (agar "1," atau "15.0" tidak langsung
- * dirapikan), lalu menampilkan format rapi saat ditinggalkan.
- */
-function NumberField({
-  value,
-  format,
-  parse,
-  onCommit,
-  ...props
-}: {
-  value: number;
-  format: (n: number) => string;
-  parse: (s: string) => number | null;
-  onCommit: (n: number) => void;
-} & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>) {
-  const [draft, setDraft] = useState<string | null>(null);
-  return (
-    <input
-      {...props}
-      type="text"
-      value={draft ?? format(value)}
-      onFocus={(e) => {
-        setDraft(format(value));
-        props.onFocus?.(e);
-        e.currentTarget.select();
-      }}
-      onChange={(e) => {
-        setDraft(e.target.value);
-        const parsed = parse(e.target.value);
-        if (parsed !== null) onCommit(parsed);
-      }}
-      onBlur={(e) => {
-        setDraft(null);
-        props.onBlur?.(e);
-      }}
-    />
-  );
-}
-
 /** Editor nota digital: jumlah, nama barang, harga satuan, subtotal, dan total. */
-export function ReceiptEditor({
-  receipt,
-  onChange,
-  onRebuild,
-}: {
-  receipt: Receipt;
-  onChange: (receipt: Receipt) => void;
-  /** Baca ulang barang dari teks hasil (menimpa isi nota). Tidak ada untuk nota manual. */
-  onRebuild?: () => void;
-}) {
+export function ReceiptEditor({ receipt, onChange }: { receipt: Receipt; onChange: (receipt: Receipt) => void }) {
   const id = useId();
   const fieldId = (name: string) => `${id}-${name}`;
   const nameRefs = useRef(new Map<string, HTMLInputElement>());
   const [focusId, setFocusId] = useState<string | null>(null);
-  const [confirmRebuild, setConfirmRebuild] = useState(false);
+  /** Isi terakhir tiap baris yang sudah diingat, agar pemakaian barang tidak terhitung dua kali. */
+  const remembered = useRef(new Map<string, string>());
   const full = normalizeReceipt(receipt);
   const { items } = full;
   const subtotal = receiptTotal(items);
@@ -123,6 +60,43 @@ export function ReceiptEditor({
     const item = emptyItem();
     update({ items: [...items, item] });
     setFocusId(item.id);
+  };
+
+  /** Baris ditinggalkan: nama & harganya diingat sebagai barang tersimpan. */
+  const rememberItem = (item: ReceiptItem) => {
+    const signature = `${item.name.trim().toLocaleLowerCase('id-ID')}|${item.price}`;
+    if (!item.name.trim() || remembered.current.get(item.id) === signature) return;
+    remembered.current.set(item.id, signature);
+    productStore.remember(item.name, item.price);
+  };
+
+  /** Saran dipilih: nama & harga tersimpan mengisi baris (harga yang sudah diketik tidak ditimpa). */
+  const pickProduct = (item: ReceiptItem, product: SavedProduct) =>
+    updateItem(item.id, { name: product.name, price: item.price > 0 ? item.price : product.price });
+
+  /**
+   * Barang tersimpan diklik: bila sudah ada di nota jumlahnya ditambah satu, bila belum
+   * mengisi baris kosong terakhir atau menambah baris baru.
+   */
+  const addProduct = (product: SavedProduct) => {
+    const key = product.name.trim().toLocaleLowerCase('id-ID');
+    const same = items.find((i) => i.name.trim().toLocaleLowerCase('id-ID') === key);
+    const last = items[items.length - 1];
+    let next: ReceiptItem[];
+    let added: ReceiptItem;
+    if (same) {
+      added = { ...same, qty: same.qty + 1 };
+      next = items.map((i) => (i.id === same.id ? added : i));
+    } else if (last && !last.name.trim() && last.price === 0) {
+      added = { ...last, name: product.name, price: product.price };
+      next = items.map((i) => (i.id === last.id ? added : i));
+    } else {
+      added = { ...emptyItem(), name: product.name, price: product.price };
+      next = [...items, added];
+    }
+    update({ items: next });
+    remembered.current.set(added.id, `${key}|${added.price}`);
+    productStore.remember(product.name, added.price);
   };
 
   const removeItem = (index: number) => {
@@ -160,50 +134,30 @@ export function ReceiptEditor({
             placeholder="Alamat / no. HP toko (opsional)"
             autoComplete="off"
           />
+          {/* Nomor & tanggal terisi otomatis (tanggal hari ini, atau tanggal yang terbaca di struk). */}
+          <p className="receipt__auto">
+            {full.number && <>No. {full.number} · </>}
+            {formatReceiptDate(full.date)}
+          </p>
         </div>
       </div>
 
-      <div className="receipt__meta">
-        <div className="receipt-field">
-          <label htmlFor={fieldId('number')}>No. nota</label>
-          <input
-            id={fieldId('number')}
-            className="receipt-row__field"
-            value={full.number}
-            onChange={(e) => update({ number: e.target.value })}
-            autoComplete="off"
-          />
-        </div>
-        <div className="receipt-field">
-          <label htmlFor={fieldId('date')}>Tanggal</label>
-          <input
-            id={fieldId('date')}
-            type="date"
-            className="receipt-row__field"
-            value={toDateInput(full.date)}
-            onChange={(e) => {
-              const date = fromDateInput(e.target.value);
-              if (date !== null) update({ date });
-            }}
-          />
-        </div>
-        <div className="receipt-field receipt-field--wide">
-          <label htmlFor={fieldId('customer')}>Kepada</label>
-          <input
-            id={fieldId('customer')}
-            className="receipt-row__field"
-            value={full.customer}
-            onChange={(e) => update({ customer: e.target.value })}
-            placeholder="Nama pembeli (opsional)"
-            autoComplete="off"
-          />
-        </div>
+      <div className="receipt-field">
+        <label htmlFor={fieldId('customer')}>Kepada</label>
+        <input
+          id={fieldId('customer')}
+          className="receipt-row__field"
+          value={full.customer}
+          onChange={(e) => update({ customer: e.target.value })}
+          placeholder="Nama pembeli (opsional)"
+          autoComplete="off"
+        />
       </div>
 
       <div className="receipt__columns" aria-hidden="true">
         <span className="receipt__col-qty">Jml</span>
         <span className="receipt__col-name">Nama barang</span>
-        <span className="receipt__col-price receipt__num">Harga satuan</span>
+        <span className="receipt__col-price receipt__num">Harga</span>
         <span className="receipt__col-sub receipt__num">Subtotal</span>
       </div>
 
@@ -214,7 +168,13 @@ export function ReceiptEditor({
           {items.map((item, index) => {
             const n = index + 1;
             return (
-              <li key={item.id} className="receipt-row">
+              <li
+                key={item.id}
+                className="receipt-row"
+                onBlur={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget as Node | null)) rememberItem(item);
+                }}
+              >
                 <NumberField
                   className="receipt-row__field receipt-row__qty"
                   aria-label={`Jumlah barang ${n}`}
@@ -224,15 +184,16 @@ export function ReceiptEditor({
                   parse={parseQtyInput}
                   onCommit={(qty) => updateItem(item.id, { qty })}
                 />
-                <input
-                  ref={(el) => {
+                <ItemNameField
+                  inputRef={(el) => {
                     if (el) nameRefs.current.set(item.id, el);
                     else nameRefs.current.delete(item.id);
                   }}
-                  className="receipt-row__field receipt-row__name"
+                  className="receipt-row__name"
                   aria-label={`Nama barang ${n}`}
                   value={item.name}
-                  onChange={(e) => updateItem(item.id, { name: e.target.value })}
+                  onChange={(name) => updateItem(item.id, { name })}
+                  onPick={(product) => pickProduct(item, product)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && index === items.length - 1) {
                       e.preventDefault();
@@ -270,17 +231,9 @@ export function ReceiptEditor({
         <Button size="sm" variant="ghost" icon={<Plus />} onClick={addItem}>
           Tambah barang
         </Button>
-        {onRebuild && (
-          <Button
-            size="sm"
-            variant="ghost"
-            icon={<RefreshCw />}
-            onClick={() => (items.length ? setConfirmRebuild(true) : onRebuild())}
-          >
-            Baca ulang dari foto/suara
-          </Button>
-        )}
       </div>
+
+      <ProductShortcuts onAdd={addProduct} />
 
       <dl className="receipt__summary">
         <div className="receipt-sum">
@@ -349,31 +302,6 @@ export function ReceiptEditor({
           rows={2}
         />
       </div>
-
-      <Modal
-        open={confirmRebuild}
-        onClose={() => setConfirmRebuild(false)}
-        title="Baca ulang barang?"
-        footer={
-          <>
-            <Button onClick={() => setConfirmRebuild(false)}>Batal</Button>
-            <Button
-              variant="primary"
-              icon={<RefreshCw />}
-              onClick={() => {
-                setConfirmRebuild(false);
-                onRebuild?.();
-              }}
-            >
-              Baca ulang
-            </Button>
-          </>
-        }
-      >
-        <p>
-          Barang di nota akan diganti dengan hasil baca ulang dari foto atau suara asli. Perubahan barang akan hilang.
-        </p>
-      </Modal>
     </div>
   );
 }

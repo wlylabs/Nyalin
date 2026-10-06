@@ -11,8 +11,9 @@ describe('historyStore', () => {
     const b = historyStore.add({ fileName: 'b.jpg', thumbnail: '', text: 'dua' });
     expect(historyStore.list().map((e) => e.id)).toEqual([b.id, a.id]);
 
-    historyStore.updateText(a.id, 'satu diubah');
-    expect(historyStore.get(a.id)?.text).toBe('satu diubah');
+    const receipt = { title: 'Toko', date: 0, items: [] };
+    historyStore.update(a.id, { receipt });
+    expect(historyStore.get(a.id)?.receipt).toEqual(receipt);
 
     const removed = historyStore.get(a.id)!;
     historyStore.remove(a.id);

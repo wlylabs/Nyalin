@@ -2,6 +2,7 @@ import {
   analyzeReceiptText,
   createReceipt,
   formatReceiptText,
+  isReceiptEmpty,
   receiptChange,
   receiptGrandTotal,
   parseQtyInput,
@@ -134,6 +135,14 @@ describe('utilitas', () => {
         'Catatan: Lunas',
       ].join('\n'),
     );
+  });
+
+  it('nota kosong: hanya baris tanpa nama & harga, atau tanpa barang', () => {
+    const base = { title: 'Toko', date: 0 };
+    expect(isReceiptEmpty({ ...base, items: [] })).toBe(true);
+    expect(isReceiptEmpty({ ...base, items: [{ id: 'a', qty: 3, name: '  ', price: 0 }] })).toBe(true);
+    expect(isReceiptEmpty({ ...base, items: [{ id: 'a', qty: 1, name: 'Teh', price: 0 }] })).toBe(false);
+    expect(isReceiptEmpty({ ...base, items: [{ id: 'a', qty: 1, name: '', price: 3000 }] })).toBe(false);
   });
 
   it('nota lama tanpa field baru tetap bisa diformat', () => {

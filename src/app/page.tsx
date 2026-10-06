@@ -1,5 +1,5 @@
-import { MainFlow } from '../views/MainFlow';
+import { NotaView } from '../views/NotaView';
 
 export default function HomePage() {
-  return <MainFlow />;
+  return <NotaView />;
 }

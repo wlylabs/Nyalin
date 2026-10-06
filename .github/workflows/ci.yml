@@ -22,8 +22,6 @@ jobs:
           node-version: 22
           cache: npm
 
-      # onnxruntime-node (dependensi Transformers.js) tidak dipakai di browser;
-      # lewati unduhan binary-nya agar instalasi cepat & tidak bergantung jaringan pihak ketiga.
       - run: npm ci --ignore-scripts
 
       - run: npm run format:check

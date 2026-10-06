@@ -45,11 +45,14 @@ export function ResultToolbar({
   receipt,
   text,
   onNew,
+  disabled = false,
 }: {
   receipt: Receipt;
   /** Teks nota (format WhatsApp). */
   text: string;
   onNew: () => void;
+  /** Nota masih kosong: aksi salin/bagikan/simpan/cetak dimatikan. */
+  disabled?: boolean;
 }) {
   const toast = useToast();
   const [saving, setSaving] = useState(false);
@@ -61,13 +64,15 @@ export function ResultToolbar({
         successMessage="Nota berhasil disalin."
         variant="primary"
         className="result-toolbar__desktop"
+        disabled={disabled}
       />
-      <ShareReceiptButton receipt={receipt} className="result-toolbar__desktop" />
+      <ShareReceiptButton receipt={receipt} className="result-toolbar__desktop" disabled={disabled} />
       <Button
         icon={<ImageDown />}
         size="sm"
         variant="ghost"
         loading={saving}
+        disabled={disabled}
         onClick={async () => {
           setSaving(true);
           try {
@@ -82,10 +87,11 @@ export function ResultToolbar({
       >
         Simpan gambar
       </Button>
-      <Button icon={<Printer />} size="sm" variant="ghost" onClick={() => window.print()}>
+      <Button icon={<Printer />} size="sm" variant="ghost" disabled={disabled} onClick={() => window.print()}>
         Cetak / PDF
       </Button>
-      <Button icon={<RotateCcw />} size="sm" variant="ghost" onClick={onNew}>
+      {/* Di layar lebar "Nota baru" sudah ada di navbar. */}
+      <Button icon={<RotateCcw />} size="sm" variant="ghost" onClick={onNew} className="result-toolbar__mobile">
         Nota baru
       </Button>
     </div>

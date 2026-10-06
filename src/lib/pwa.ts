@@ -2,10 +2,6 @@
 
 import { useSyncExternalStore } from 'react';
 
-/** Harus sama dengan src/sw/sw.ts */
-const SHARE_CACHE = 'nyalin-share';
-const SHARED_FILE_URL = '/__shared-file';
-
 /* ── Instal aplikasi ─────────────────────────────────────────────────────── */
 
 interface BeforeInstallPromptEvent extends Event {
@@ -73,32 +69,4 @@ export function useInstallState(): InstallState {
     () => installState,
     () => 'unavailable',
   );
-}
-
-/* ── File yang masuk dari luar ───────────────────────────────────────────── */
-
-/** Mengambil file yang dibagikan lewat menu "Bagikan" (disimpan sementara oleh service worker), lalu menghapusnya. */
-export async function takeSharedFile(): Promise<File | null> {
-  if (!('caches' in window)) return null;
-  const cache = await caches.open(SHARE_CACHE);
-  const response = await cache.match(SHARED_FILE_URL);
-  if (!response) return null;
-  await cache.delete(SHARED_FILE_URL);
-  const blob = await response.blob();
-  const name = decodeURIComponent(response.headers.get('X-File-Name') ?? 'file-dibagikan');
-  return new File([blob], name, { type: blob.type });
-}
-
-interface LaunchParams {
-  files: { getFile(): Promise<File> }[];
-}
-
-/** Desktop: "Buka dengan Nyalin" (File Handling API). */
-export function consumeLaunchedFiles(onFile: (file: File) => void) {
-  const launchQueue = (window as Window & { launchQueue?: { setConsumer(cb: (p: LaunchParams) => void): void } })
-    .launchQueue;
-  launchQueue?.setConsumer(async (params) => {
-    const handle = params.files?.[0];
-    if (handle) onFile(await handle.getFile());
-  });
 }

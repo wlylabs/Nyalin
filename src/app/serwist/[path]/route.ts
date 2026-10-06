@@ -9,8 +9,8 @@ const revision = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.BUILD_ID ?? `$
 export const { dynamic, dynamicParams, revalidate, generateStaticParams, GET } = createSerwistRoute({
   swSrc: 'src/sw/sw.ts',
   useNativeEsbuild: true,
-  // Runtime OCR/ONNX (±40 MB) tidak di-precache; di-cache saat pertama kali dipakai.
-  globIgnores: ['public/vendor/**', 'public/screenshots/**'],
+  // Screenshot hanya untuk dialog instal, tidak perlu disimpan offline.
+  globIgnores: ['public/screenshots/**'],
   additionalPrecacheEntries: [
     { url: '/', revision },
     { url: '/riwayat', revision },

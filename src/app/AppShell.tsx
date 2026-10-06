@@ -1,70 +1,36 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, type ReactNode } from 'react';
+import { Suspense, useCallback, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Navbar } from '../components/Navbar';
-import { FilePickerProvider } from '../components/FilePicker';
 import { ToastProvider } from '../components/Toast';
-import { NyalinProvider, useNyalin } from '../state/NyalinProvider';
+import { NotaProvider, useNota } from '../state/NotaProvider';
 import { PwaBridge } from './PwaBridge';
 
-/** Provider client & kerangka halaman. State alur hidup di sini agar bertahan antar halaman. */
+/** Provider client & kerangka halaman. Nota yang sedang dibuka hidup di sini agar bertahan antar halaman. */
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <ToastProvider>
-      <NyalinProvider>
-        <FileRouting>
-          <Shell>{children}</Shell>
-          <Suspense fallback={null}>
-            <PwaBridge />
-          </Suspense>
-        </FileRouting>
-      </NyalinProvider>
+      <NotaProvider>
+        <Shell>{children}</Shell>
+        <Suspense fallback={null}>
+          <PwaBridge />
+        </Suspense>
+      </NotaProvider>
     </ToastProvider>
   );
 }
 
-/** File yang dipilih dari halaman mana pun membawa user kembali ke alur utama. */
-function FileRouting({ children }: { children: ReactNode }) {
-  const { selectFile } = useNyalin();
-  const router = useRouter();
-  const pathname = usePathname();
-  const handleFile = useCallback(
-    (file: File) => {
-      selectFile(file);
-      if (pathname !== '/') router.push('/');
-    },
-    [selectFile, router, pathname],
-  );
-  return <FilePickerProvider onFile={handleFile}>{children}</FilePickerProvider>;
-}
-
 function Shell({ children }: { children: ReactNode }) {
-  const nyalin = useNyalin();
+  const { startNew } = useNota();
   const router = useRouter();
   const pathname = usePathname();
-  const { selectFile, reset } = nyalin;
 
-  // Tempel gambar langsung dari clipboard (Ctrl+V) di desktop.
-  useEffect(() => {
-    function onPaste(e: ClipboardEvent) {
-      const target = e.target as HTMLElement | null;
-      if (target?.closest('textarea, input, select, [contenteditable="true"]')) return;
-      const file = Array.from(e.clipboardData?.files ?? []).find((f) => f.type.startsWith('image/'));
-      if (!file) return;
-      e.preventDefault();
-      selectFile(file);
-      if (pathname !== '/') router.push('/');
-    }
-    window.addEventListener('paste', onPaste);
-    return () => window.removeEventListener('paste', onPaste);
-  }, [selectFile, router, pathname]);
-
-  /** "Nota baru": kembali ke beranda untuk memilih foto struk, voice note, atau nota manual. */
+  /** "Nota baru": nota kosong dengan nomor berikutnya. */
   const startFresh = useCallback(() => {
-    reset();
+    startNew();
     if (pathname !== '/') router.push('/');
-  }, [reset, router, pathname]);
+  }, [startNew, router, pathname]);
 
   return (
     <>

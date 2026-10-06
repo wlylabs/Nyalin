@@ -1,7 +1,9 @@
 /**
- * Nota digital: daftar barang (jumlah, nama, harga satuan) yang dibaca dari teks hasil Nyalin
- * — struk belanja, catatan belanja tulisan tangan, atau voice note "beras dua kilo tiga puluh ribu".
- * Pembacaan sengaja sederhana dan bisa ditebak; user selalu bisa memperbaikinya di editor nota.
+ * Nota digital: model data, hitungan (subtotal, diskon, kembalian), dan format teks WhatsApp.
+ *
+ * Pembaca teks bebas di bawah (struk, catatan belanja, "beras dua kilo tiga puluh ribu") berasal dari
+ * versi lama yang membaca foto/voice note. Kini hanya dipakai untuk membuka riwayat lama yang
+ * belum punya nota, supaya data user tidak hilang.
  */
 
 export interface ReceiptItem {
@@ -63,6 +65,12 @@ export function emptyItem(): ReceiptItem {
 }
 
 export const itemSubtotal = (item: ReceiptItem) => Math.round(item.qty * item.price);
+
+/** Barang yang benar-benar diisi (nama atau harga); baris kosong diabaikan. */
+export const filledItems = (items: ReceiptItem[]) => items.filter((i) => i.name.trim() || i.price > 0);
+
+/** Nota tanpa satu pun barang yang diisi — belum layak disimpan sebagai gambar, dibagikan, atau dicetak. */
+export const isReceiptEmpty = (receipt: Receipt) => filledItems(receipt.items).length === 0;
 
 /** Jumlah semua subtotal barang (sebelum diskon). */
 export function receiptTotal(items: ReceiptItem[]): number {
