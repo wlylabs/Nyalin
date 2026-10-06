@@ -10,18 +10,18 @@ export function PrivacyNote({ kind = 'image' }: { kind?: MediaKind }) {
   if (kind === 'audio') {
     message = transcribeProvider.processesOnDevice
       ? 'Suara diproses langsung di perangkatmu dan tidak diunggah ke server. Pemakaian pertama mengunduh model pengenal suara sekali saja. '
-      : 'Suara dikirim ke server hanya saat kamu menekan "Mulai Nyalin" untuk diubah jadi teks, lalu tidak disimpan. ';
+      : 'Suara dikirim ke server hanya saat kamu menekan "Jadikan nota", lalu tidak disimpan. ';
   } else {
     message = ocrProvider.processesOnDevice
-      ? 'Gambar dibaca langsung di perangkatmu dan tidak diunggah ke server. '
-      : 'Gambar dikirim ke server hanya saat kamu menekan "Mulai Nyalin", lalu tidak disimpan. ';
+      ? 'Foto dibaca langsung di perangkatmu dan tidak diunggah ke server. '
+      : 'Foto dikirim ke server hanya saat kamu menekan "Jadikan nota", lalu tidak disimpan. ';
   }
   return (
     <p className="privacy-note">
       <ShieldCheck aria-hidden="true" />
       <span>
         {message}
-        Riwayat hanya tersimpan di browser ini.
+        Nota hanya tersimpan di browser ini.
       </span>
     </p>
   );

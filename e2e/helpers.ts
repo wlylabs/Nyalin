@@ -31,7 +31,7 @@ export function makeWav(seconds: number, sample: (t: number) => number): Buffer 
 export const imageInput = (page: Page) => page.locator('input[type=file]').nth(0);
 export const audioInput = (page: Page) => page.locator('input[type=file]').nth(2);
 
-/** Tombol utama di dalam <main> (navbar juga punya "Mulai Nyalin"). */
+/** Tombol utama di dalam <main> (navbar juga punya tombol). */
 export const mainButton = (page: Page, name: string) => page.locator('main').getByRole('button', { name, exact: true });
 
 /** Tidak boleh ada pelanggaran aksesibilitas tingkat serius/kritis (WCAG 2.2 A/AA). */
@@ -40,6 +40,10 @@ export async function expectAccessible(page: Page) {
   await page.waitForFunction(() =>
     document.getAnimations().every((a) => a.playState !== 'running' || a.effect?.getTiming().iterations === Infinity),
   );
+  // Action bar ponsel menempel di bawah layar; field yang kebetulan berada di baliknya akan dianggap
+  // "tertutup" oleh aturan target-size tergantung posisi scroll. Saat dipindai, bar dibuat statis
+  // (tombolnya tetap ikut diperiksa) supaya hasil tidak bergantung pada posisi scroll.
+  await page.addStyleTag({ content: '.action-bar { position: static !important; }' });
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
   const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
   expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);

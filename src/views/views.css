@@ -239,3 +239,23 @@
   width: 24px;
   height: 24px;
 }
+
+/* Nota manual: tanpa kolom foto/suara. */
+@media (min-width: 960px) {
+  .result-layout--solo {
+    display: block;
+    max-width: 760px;
+    margin-inline: auto;
+  }
+}
+
+/* Beranda: jalan pintas nota manual di bawah area upload. */
+.home-manual {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2) var(--space-3);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}

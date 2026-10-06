@@ -13,9 +13,9 @@ test.describe('Voice note → teks', () => {
     await page.getByLabel('Bahasa dalam voice note').selectOption('auto');
     await expectAccessible(page);
 
-    await mainButton(page, 'Mulai Nyalin').click();
+    await mainButton(page, 'Jadikan nota').click();
     await expect(page.getByText('Terdengar sejauh ini')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Hasil Nyalin' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Nota', exact: true })).toBeVisible();
     await expect(page.getByText(/durasi 0:04/)).toBeVisible();
     await expectAccessible(page);
   });
@@ -35,7 +35,7 @@ test.describe('Voice note → teks', () => {
     await page.goto('/');
     await page.getByRole('radio', { name: 'Voice note' }).click();
     await audioInput(page).setInputFiles(generated('hening.wav'));
-    await mainButton(page, 'Mulai Nyalin').click();
+    await mainButton(page, 'Jadikan nota').click();
     await expect(page.getByRole('heading', { name: 'Tidak ada ucapan yang terdengar' })).toBeVisible();
   });
 

@@ -1,25 +1,48 @@
-import { useRef } from 'react';
+import { useRef, type ComponentType, type SVGProps } from 'react';
 import { AudioLines, ImageIcon } from 'lucide-react';
 import type { MediaKind } from '../lib/media';
 import './ModeSwitch.css';
 
-const OPTIONS: { value: MediaKind; label: string; Icon: typeof ImageIcon }[] = [
-  { value: 'image', label: 'Gambar', Icon: ImageIcon },
+export interface SwitchOption<T extends string> {
+  value: T;
+  label: string;
+  Icon: ComponentType<SVGProps<SVGSVGElement>>;
+}
+
+const MEDIA_OPTIONS: SwitchOption<MediaKind>[] = [
+  { value: 'image', label: 'Foto struk', Icon: ImageIcon },
   { value: 'audio', label: 'Voice note', Icon: AudioLines },
 ];
 
+/** Pilihan jenis masukan di beranda: gambar atau voice note. */
+export function ModeSwitch({ value, onChange }: { value: MediaKind; onChange: (v: MediaKind) => void }) {
+  return <SegmentedSwitch options={MEDIA_OPTIONS} value={value} onChange={onChange} label="Sumber nota" />;
+}
+
 /**
- * Segmented control (pola Material 3 "segmented button") untuk memilih jenis masukan.
+ * Segmented control (pola Material 3 "segmented button") dua pilihan.
  * Diimplementasikan sebagai radio group: panah kiri/kanan berpindah pilihan.
  */
-export function ModeSwitch({ value, onChange }: { value: MediaKind; onChange: (v: MediaKind) => void }) {
+export function SegmentedSwitch<T extends string>({
+  options: OPTIONS,
+  value,
+  onChange,
+  label,
+  className,
+}: {
+  options: SwitchOption<T>[];
+  value: T;
+  onChange: (v: T) => void;
+  label: string;
+  className?: string;
+}) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
   return (
     <div
-      className="mode-switch"
+      className={['mode-switch', className].filter(Boolean).join(' ')}
       role="radiogroup"
-      aria-label="Jenis yang mau disalin"
+      aria-label={label}
       style={{ ['--active' as string]: OPTIONS.findIndex((o) => o.value === value) }}
     >
       {/* Penanda pilihan yang bergeser — pilihan juga ditandai aria-checked & warna teks. */}
