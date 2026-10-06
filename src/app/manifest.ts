@@ -1,8 +1,5 @@
 import type { MetadataRoute } from 'next';
 
-const AUDIO_ACCEPT = ['audio/*', '.opus', '.ogg', '.oga', '.m4a', '.mp3', '.aac', '.wav', '.webm', '.flac'];
-const IMAGE_ACCEPT = ['image/jpeg', 'image/png', 'image/webp', '.jpg', '.jpeg', '.png', '.webp'];
-
 /**
  * Web App Manifest — memenuhi kriteria instal Chrome/Edge/Android dan menampilkan
  * dialog instal yang kaya (deskripsi + screenshot). Disajikan di /manifest.webmanifest.
@@ -13,7 +10,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'Nyalin — Nota digital',
     short_name: 'Nyalin',
     description:
-      'Foto struk atau sebut belanjaan lewat voice note, langsung jadi nota digital: jumlah, nama barang, harga, dan total. Kirim ke WhatsApp, simpan gambar, atau cetak.',
+      'Buat nota digital dengan cepat: isi jumlah, nama barang, dan harga — total, tanggal, dan nomor nota terisi otomatis. Kirim ke WhatsApp, simpan gambar, atau cetak.',
     lang: 'id',
     dir: 'ltr',
     start_url: '/?source=pwa',
@@ -37,7 +34,7 @@ export default function manifest(): MetadataRoute.Manifest {
         sizes: '780x1688',
         type: 'image/png',
         form_factor: 'narrow',
-        label: 'Pilih foto struk atau voice note',
+        label: 'Isi nota di ponsel',
       },
       {
         src: '/screenshots/hasil-ponsel.png',
@@ -51,25 +48,13 @@ export default function manifest(): MetadataRoute.Manifest {
         sizes: '1280x800',
         type: 'image/png',
         form_factor: 'wide',
-        label: 'Foto struk dan nota berdampingan',
+        label: 'Nota di layar lebar',
       },
     ],
     shortcuts: [
       {
-        name: 'Nota dari foto struk',
-        short_name: 'Foto struk',
-        url: '/?mode=gambar&source=shortcut',
-        icons: [{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
-      },
-      {
-        name: 'Nota dari voice note',
-        short_name: 'Voice note',
-        url: '/?mode=suara&source=shortcut',
-        icons: [{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
-      },
-      {
-        name: 'Nota manual',
-        url: '/?mode=manual&source=shortcut',
+        name: 'Nota baru',
+        url: '/?source=shortcut',
         icons: [{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
       },
       {
@@ -77,22 +62,6 @@ export default function manifest(): MetadataRoute.Manifest {
         url: '/riwayat?source=shortcut',
         icons: [{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
       },
-    ],
-    // Muncul di menu "Bagikan" Android/ChromeOS: kirim foto atau voice note WhatsApp langsung ke Nyalin.
-    share_target: {
-      action: '/share-target',
-      method: 'post',
-      enctype: 'multipart/form-data',
-      params: {
-        title: 'title',
-        text: 'text',
-        files: [{ name: 'media', accept: [...IMAGE_ACCEPT, ...AUDIO_ACCEPT] }],
-      },
-    },
-    // Desktop (Chrome/Edge): "Buka dengan Nyalin" untuk file gambar & audio.
-    file_handlers: [
-      { action: '/', accept: { 'image/*': ['.jpg', '.jpeg', '.png', '.webp'] } },
-      { action: '/', accept: { 'audio/*': ['.opus', '.ogg', '.m4a', '.mp3', '.wav', '.webm'] } },
     ],
     launch_handler: { client_mode: ['focus-existing', 'auto'] },
   } as MetadataRoute.Manifest;

@@ -1,9 +1,8 @@
 import { useEffect, useId, useRef, useState, type InputHTMLAttributes } from 'react';
-import { Plus, ReceiptText, RefreshCw, Trash2 } from 'lucide-react';
+import { Plus, ReceiptText, Trash2 } from 'lucide-react';
 import { Button } from './Button';
 import { IconButton } from './IconButton';
 import { InlineAlert } from './InlineAlert';
-import { Modal } from './Modal';
 import {
   emptyItem,
   formatQty,
@@ -70,21 +69,11 @@ function NumberField({
 }
 
 /** Editor nota digital: jumlah, nama barang, harga satuan, subtotal, dan total. */
-export function ReceiptEditor({
-  receipt,
-  onChange,
-  onRebuild,
-}: {
-  receipt: Receipt;
-  onChange: (receipt: Receipt) => void;
-  /** Baca ulang barang dari teks hasil (menimpa isi nota). Tidak ada untuk nota manual. */
-  onRebuild?: () => void;
-}) {
+export function ReceiptEditor({ receipt, onChange }: { receipt: Receipt; onChange: (receipt: Receipt) => void }) {
   const id = useId();
   const fieldId = (name: string) => `${id}-${name}`;
   const nameRefs = useRef(new Map<string, HTMLInputElement>());
   const [focusId, setFocusId] = useState<string | null>(null);
-  const [confirmRebuild, setConfirmRebuild] = useState(false);
   const full = normalizeReceipt(receipt);
   const { items } = full;
   const subtotal = receiptTotal(items);
@@ -173,7 +162,7 @@ export function ReceiptEditor({
       <div className="receipt__columns" aria-hidden="true">
         <span className="receipt__col-qty">Jml</span>
         <span className="receipt__col-name">Nama barang</span>
-        <span className="receipt__col-price receipt__num">Harga satuan</span>
+        <span className="receipt__col-price receipt__num">Harga</span>
         <span className="receipt__col-sub receipt__num">Subtotal</span>
       </div>
 
@@ -240,16 +229,6 @@ export function ReceiptEditor({
         <Button size="sm" variant="ghost" icon={<Plus />} onClick={addItem}>
           Tambah barang
         </Button>
-        {onRebuild && (
-          <Button
-            size="sm"
-            variant="ghost"
-            icon={<RefreshCw />}
-            onClick={() => (items.length ? setConfirmRebuild(true) : onRebuild())}
-          >
-            Baca ulang dari foto/suara
-          </Button>
-        )}
       </div>
 
       <dl className="receipt__summary">
@@ -319,31 +298,6 @@ export function ReceiptEditor({
           rows={2}
         />
       </div>
-
-      <Modal
-        open={confirmRebuild}
-        onClose={() => setConfirmRebuild(false)}
-        title="Baca ulang barang?"
-        footer={
-          <>
-            <Button onClick={() => setConfirmRebuild(false)}>Batal</Button>
-            <Button
-              variant="primary"
-              icon={<RefreshCw />}
-              onClick={() => {
-                setConfirmRebuild(false);
-                onRebuild?.();
-              }}
-            >
-              Baca ulang
-            </Button>
-          </>
-        }
-      >
-        <p>
-          Barang di nota akan diganti dengan hasil baca ulang dari foto atau suara asli. Perubahan barang akan hilang.
-        </p>
-      </Modal>
     </div>
   );
 }

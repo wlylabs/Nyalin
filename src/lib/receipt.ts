@@ -1,7 +1,9 @@
 /**
- * Nota digital: daftar barang (jumlah, nama, harga satuan) yang dibaca dari teks hasil Nyalin
- * — struk belanja, catatan belanja tulisan tangan, atau voice note "beras dua kilo tiga puluh ribu".
- * Pembacaan sengaja sederhana dan bisa ditebak; user selalu bisa memperbaikinya di editor nota.
+ * Nota digital: model data, hitungan (subtotal, diskon, kembalian), dan format teks WhatsApp.
+ *
+ * Pembaca teks bebas di bawah (struk, catatan belanja, "beras dua kilo tiga puluh ribu") berasal dari
+ * versi lama yang membaca foto/voice note. Kini hanya dipakai untuk membuka riwayat lama yang
+ * belum punya nota, supaya data user tidak hilang.
  */
 
 export interface ReceiptItem {
