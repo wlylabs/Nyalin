@@ -63,7 +63,6 @@ function Stage(): ReactNode {
           key={state.media.url || state.result.historyId || 'result'}
           media={state.media}
           result={state.result}
-          onEdit={nyalin.editText}
           onEditReceipt={nyalin.editReceipt}
           onAgain={nyalin.reset}
           focusOnMount={hasMoved}

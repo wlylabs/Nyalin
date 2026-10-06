@@ -36,6 +36,13 @@ export function formatHistoryDate(timestamp: number, now = new Date()): string {
   return `${dateFormat.format(date)}, ${timeFormat.format(date)}`;
 }
 
+/** Ringkasan entri: nama barang di nota, atau teks hasil untuk riwayat lama. */
+function entryExcerpt(entry: HistoryEntry): string {
+  const names = entry.receipt?.items.map((i) => i.name.trim()).filter(Boolean) ?? [];
+  if (names.length) return excerpt(names.join(', '));
+  return excerpt(entry.text) || 'Nota kosong';
+}
+
 export function HistoryView() {
   const entries = useHistory();
   const router = useRouter();
@@ -116,7 +123,7 @@ export function HistoryView() {
                         ` · Voice note${entry.duration ? ` ${formatDuration(entry.duration)}` : ''}`}
                       {entry.receipt && ` · Nota ${formatRupiah(receiptTotal(entry.receipt.items))}`}
                     </span>
-                    <span className="history-item__excerpt">{excerpt(entry.text) || 'Teks kosong'}</span>
+                    <span className="history-item__excerpt">{entryExcerpt(entry)}</span>
                   </span>
                 </button>
                 <IconButton

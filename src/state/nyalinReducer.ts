@@ -20,7 +20,7 @@ export interface ResultData {
   text: string;
   lowConfidence: boolean;
   historyId: string | null;
-  /** Nota digital dari teks ini; null sampai user membuka tab Nota. */
+  /** Nota digital yang dibaca dari teks hasil. */
   receipt?: Receipt | null;
 }
 
@@ -48,7 +48,6 @@ export type NyalinAction =
   | { type: 'fail'; code: NyalinErrorCode; partialText?: string | null }
   | { type: 'cancel' }
   | { type: 'show-partial'; historyId: string | null }
-  | { type: 'edit'; text: string }
   | { type: 'edit-receipt'; receipt: Receipt | null }
   | { type: 'attach-history'; historyId: string }
   | { type: 'open'; media: SelectedMedia; result: ResultData }
@@ -126,10 +125,6 @@ export function nyalinReducer(state: NyalinState, action: NyalinAction): NyalinS
           historyId: action.historyId,
         },
       };
-
-    case 'edit':
-      if (state.phase !== 'result') return state;
-      return { ...state, result: { ...state.result, text: action.text } };
 
     case 'edit-receipt':
       if (state.phase !== 'result') return state;

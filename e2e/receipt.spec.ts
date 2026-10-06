@@ -2,14 +2,13 @@ import { expect, test } from '@playwright/test';
 import { expectAccessible, fixture, imageInput, mainButton } from './helpers';
 
 test.describe('Nota digital', () => {
-  test('teks hasil jadi nota: jumlah, nama barang, harga, total', async ({ page, context }) => {
+  test('hasil langsung jadi nota: jumlah, nama barang, harga, total', async ({ page, context }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.goto('/');
     await imageInput(page).setInputFiles(fixture('catatan-belanja.png'));
     await mainButton(page, 'Mulai Nyalin').click();
     await expect(page.getByRole('heading', { name: 'Hasil Nyalin' })).toBeVisible({ timeout: 45_000 });
 
-    await page.getByRole('radio', { name: 'Nota' }).click();
     const items = page.getByRole('list', { name: 'Daftar barang' }).getByRole('listitem');
     await expect(items).toHaveCount(5);
     await expect(page.getByRole('textbox', { name: 'Nama barang 1' })).toHaveValue('Beras 5 kg');
@@ -41,7 +40,6 @@ test.describe('Nota digital', () => {
     await page.getByRole('link', { name: 'Riwayat' }).click();
     await expect(page.getByText(/Nota Rp134\.500/)).toBeVisible();
     await page.getByRole('button', { name: /^catatan-belanja/ }).click();
-    await expect(page.getByRole('radio', { name: 'Nota' })).toBeChecked();
     await expect(page.getByRole('textbox', { name: 'Nama barang 5' })).toHaveValue('Sabun cuci');
   });
 });

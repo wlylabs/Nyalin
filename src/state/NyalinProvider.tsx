@@ -21,7 +21,7 @@ import { runTranscription, transcribeProvider, type SpeechLanguage } from '../se
 import type { ProcessProgress } from '../services/progress';
 import { createThumbnail } from '../lib/file';
 import { detectMediaKind, validateMediaFile, type MediaKind } from '../lib/media';
-import type { Receipt } from '../lib/receipt';
+import { createReceipt, type Receipt } from '../lib/receipt';
 
 const HISTORY_SAVE_DELAY = 600;
 
@@ -181,9 +181,11 @@ function useNyalinController() {
         }));
       }
       if (controller.signal.aborted) return;
-      const historyId = await saveToHistory(media, text);
+      // Hasil langsung dibaca jadi nota dan ikut tersimpan di riwayat.
+      const receipt = createReceipt(text);
+      const historyId = await saveToHistory(media, text, receipt);
       if (controller.signal.aborted) return;
-      go({ type: 'success', result: { text, lowConfidence, historyId } });
+      go({ type: 'success', result: { text, lowConfidence, historyId, receipt } });
     } catch (error) {
       if (controller.signal.aborted || isAbortError(error)) return;
       if (error instanceof BlurryResultError) {
@@ -221,7 +223,7 @@ function useNyalinController() {
 
   /**
    * Simpan perubahan hasil (teks / nota) ke riwayat dengan jeda, agar tidak menulis tiap ketukan.
-   * Hasil ketik manual baru masuk riwayat setelah ada isinya (sekali saja).
+   * Nota yang diisi manual baru masuk riwayat setelah ada isinya (sekali saja).
    */
   const persistResult = useCallback(
     (patch: HistoryPatch) => {
@@ -255,14 +257,6 @@ function useNyalinController() {
       saveTimer.current = setTimeout(flushSave, HISTORY_SAVE_DELAY);
     },
     [flushSave, saveToHistory],
-  );
-
-  const editText = useCallback(
-    (text: string) => {
-      dispatch({ type: 'edit', text });
-      persistResult({ text });
-    },
-    [persistResult],
   );
 
   const editReceipt = useCallback(
@@ -315,7 +309,6 @@ function useNyalinController() {
       retry: start,
       cancel,
       showPartial,
-      editText,
       editReceipt,
       setLanguage,
       reportError,
@@ -329,7 +322,6 @@ function useNyalinController() {
       start,
       cancel,
       showPartial,
-      editText,
       editReceipt,
       setLanguage,
       reportError,

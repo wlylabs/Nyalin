@@ -19,8 +19,9 @@ describe('nyalinReducer', () => {
     expect(s.phase === 'processing' && s.progress.progress).toBe(0.5);
     s = nyalinReducer(s, { type: 'success', result: { text: 'halo', lowConfidence: false, historyId: 'h1' } });
     expect(s.phase).toBe('result');
-    s = nyalinReducer(s, { type: 'edit', text: 'halo dunia' });
-    expect(s.phase === 'result' && s.result.text).toBe('halo dunia');
+    const receipt = { title: 'Toko', date: 0, items: [{ id: 'a', qty: 1, name: 'Beras', price: 1000 }] };
+    s = nyalinReducer(s, { type: 'edit-receipt', receipt });
+    expect(s.phase === 'result' && s.result.receipt).toBe(receipt);
   });
 
   it('error pemilihan file tidak membuang gambar yang sudah dipilih', () => {

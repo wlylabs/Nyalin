@@ -15,20 +15,18 @@ test.describe('Gambar → teks', () => {
 
     await mainButton(page, 'Mulai Nyalin').click();
     await expect(page.getByRole('heading', { name: 'Hasil Nyalin' })).toBeVisible({ timeout: 45_000 });
-    const editor = page.getByRole('textbox', { name: /Teks hasil Nyalin/ });
-    await expect(editor).toHaveValue(/Catatan Belanja/);
-    await expect(editor).toHaveValue(/Rp250\.000/);
-    await expect(page.getByText(/\d+ kata · \d+ karakter/)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Nama barang 1' })).toHaveValue('Beras 5 kg');
+    await expect(page.getByText(/^\d+ barang/)).toBeVisible();
     await expectAccessible(page);
 
-    await page.getByRole('button', { name: 'Salin teks' }).filter({ visible: true }).first().click();
-    await expect(page.getByRole('status').filter({ hasText: 'Teks berhasil disalin.' })).toBeVisible();
-    expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('Catatan Belanja');
+    await page.getByRole('button', { name: 'Salin nota' }).filter({ visible: true }).first().click();
+    await expect(page.getByRole('status').filter({ hasText: 'Nota berhasil disalin.' })).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('Beras 5 kg');
 
-    await editor.fill('Teks yang sudah dikoreksi');
+    await page.getByRole('textbox', { name: 'Nama barang 1' }).fill('Beras pandan wangi 5 kg');
     await page.getByRole('link', { name: 'Riwayat' }).click();
     await expect(page).toHaveURL(/\/riwayat$/);
-    await expect(page.getByText('Teks yang sudah dikoreksi')).toBeVisible();
+    await expect(page.getByText(/^Beras pandan wangi 5 kg, Minyak goreng/)).toBeVisible();
     await expectAccessible(page);
   });
 
