@@ -97,6 +97,17 @@
   font-variant-numeric: tabular-nums;
 }
 
+.result-tabs {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .result-tabs.mode-switch {
+    width: 280px;
+    margin-inline: 0;
+  }
+}
+
 .result-hint {
   color: var(--color-ink-subtle);
   font-size: var(--text-xs);

@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
 import type { MediaKind } from '../lib/media';
+import type { Receipt } from '../lib/receipt';
 
 /**
  * Riwayat disimpan hanya di browser ini (localStorage).
@@ -18,7 +19,11 @@ export interface HistoryEntry {
   /** Durasi suara dalam detik. */
   duration?: number | null;
   text: string;
+  /** Nota digital yang dibuat dari teks ini (bila pernah dibuka di tab Nota). */
+  receipt?: Receipt | null;
 }
+
+export type HistoryPatch = Partial<Pick<HistoryEntry, 'text' | 'receipt'>>;
 
 const STORAGE_KEY = 'nyalin:history:v1';
 const MAX_ENTRIES = 30;
@@ -87,10 +92,13 @@ export const historyStore = {
     write([full, ...read()].slice(0, MAX_ENTRIES));
     return full;
   },
-  updateText(id: string, text: string) {
+  update(id: string, patch: HistoryPatch) {
     const entries = read();
     if (!entries.some((e) => e.id === id)) return;
-    write(entries.map((e) => (e.id === id ? { ...e, text } : e)));
+    write(entries.map((e) => (e.id === id ? { ...e, ...patch } : e)));
+  },
+  updateText(id: string, text: string) {
+    historyStore.update(id, { text });
   },
   /** Mengembalikan entri yang baru dihapus (untuk "Urungkan"). */
   restore(entry: HistoryEntry) {

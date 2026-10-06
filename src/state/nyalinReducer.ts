@@ -2,6 +2,7 @@ import type { NyalinErrorCode } from '../services/errors';
 import type { ProcessProgress } from '../services/progress';
 import type { MediaKind } from '../lib/media';
 import type { SpeechLanguage } from '../services/transcribe/types';
+import type { Receipt } from '../lib/receipt';
 
 export interface SelectedMedia {
   kind: MediaKind;
@@ -19,6 +20,8 @@ export interface ResultData {
   text: string;
   lowConfidence: boolean;
   historyId: string | null;
+  /** Nota digital dari teks ini; null sampai user membuka tab Nota. */
+  receipt?: Receipt | null;
 }
 
 export type NyalinState =
@@ -46,6 +49,7 @@ export type NyalinAction =
   | { type: 'cancel' }
   | { type: 'show-partial'; historyId: string | null }
   | { type: 'edit'; text: string }
+  | { type: 'edit-receipt'; receipt: Receipt | null }
   | { type: 'attach-history'; historyId: string }
   | { type: 'open'; media: SelectedMedia; result: ResultData }
   | { type: 'reset' };
@@ -126,6 +130,10 @@ export function nyalinReducer(state: NyalinState, action: NyalinAction): NyalinS
     case 'edit':
       if (state.phase !== 'result') return state;
       return { ...state, result: { ...state.result, text: action.text } };
+
+    case 'edit-receipt':
+      if (state.phase !== 'result') return state;
+      return { ...state, result: { ...state.result, receipt: action.receipt } };
 
     case 'attach-history':
       if (state.phase !== 'result') return state;

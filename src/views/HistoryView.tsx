@@ -11,6 +11,7 @@ import { useToast } from '../components/Toast';
 import { excerpt } from '../lib/text';
 import { displayFileName } from '../lib/file';
 import { formatDuration } from '../lib/audio';
+import { formatRupiah, receiptTotal } from '../lib/receipt';
 import { useFilePicker } from '../components/FilePicker';
 import { useNyalin } from '../state/NyalinProvider';
 import { historyStore, useHistory, type HistoryEntry } from '../state/historyStore';
@@ -113,6 +114,7 @@ export function HistoryView() {
                       </time>
                       {entry.kind === 'audio' &&
                         ` · Voice note${entry.duration ? ` ${formatDuration(entry.duration)}` : ''}`}
+                      {entry.receipt && ` · Nota ${formatRupiah(receiptTotal(entry.receipt.items))}`}
                     </span>
                     <span className="history-item__excerpt">{excerpt(entry.text) || 'Teks kosong'}</span>
                   </span>
