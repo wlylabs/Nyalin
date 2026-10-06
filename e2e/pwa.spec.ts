@@ -30,7 +30,7 @@ test.describe('PWA', () => {
 
     await context.setOffline(true);
     await page.reload();
-    await page.getByRole('textbox', { name: 'Nama barang 1' }).fill('Teh botol');
+    await page.getByRole('combobox', { name: 'Nama barang 1' }).fill('Teh botol');
     await page.getByRole('textbox', { name: 'Harga satuan barang 1, rupiah' }).fill('5000');
     await expect(page.locator('.receipt-sum--total strong')).toHaveText('Rp5.000');
     await context.setOffline(false);
