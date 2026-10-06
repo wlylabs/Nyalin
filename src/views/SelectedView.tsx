@@ -43,12 +43,12 @@ export function SelectedView({
     <div className="page page--narrow stack">
       <header>
         <h1 ref={titleRef} tabIndex={-1} className="view-title">
-          {isAudio ? 'Cek voice note-nya dulu' : 'Cek gambarnya dulu'}
+          {isAudio ? 'Cek voice note-nya dulu' : 'Cek fotonya dulu'}
         </h1>
         <p className="view-subtitle">
           {isAudio
-            ? 'Putar sebentar untuk memastikan suaranya benar, lalu mulai.'
-            : 'Pastikan tulisan terlihat jelas, lalu mulai.'}
+            ? 'Putar sebentar untuk memastikan suaranya benar, lalu jadikan nota.'
+            : 'Pastikan barang dan harga terlihat jelas, lalu jadikan nota.'}
         </p>
       </header>
 
@@ -84,10 +84,10 @@ export function SelectedView({
 
       <ActionBar label="Lanjutkan">
         <Button icon={<RefreshCw />} onClick={() => openFiles(media.kind)}>
-          {isAudio ? 'Ganti audio' : 'Ganti gambar'}
+          {isAudio ? 'Ganti audio' : 'Ganti foto'}
         </Button>
         <Button variant="primary" icon={<ArrowRight />} onClick={onStart}>
-          Mulai Nyalin
+          Jadikan nota
         </Button>
       </ActionBar>
     </div>

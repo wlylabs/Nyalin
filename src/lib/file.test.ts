@@ -1,5 +1,5 @@
 import { formatBytes, validateImageFile, MAX_FILE_SIZE } from './file';
-import { textFileName } from './download';
+import { receiptFileName } from './receiptImage';
 
 describe('validateImageFile', () => {
   it('menerima JPG, PNG, WEBP', () => {
@@ -27,9 +27,11 @@ describe('formatBytes', () => {
   });
 });
 
-describe('textFileName', () => {
-  it('membuat nama file .txt yang aman', () => {
-    expect(textFileName('Catatan Rapat (1).JPG')).toBe('nyalin-catatan-rapat-1.txt');
-    expect(textFileName('.png')).toBe('nyalin-gambar.txt');
+describe('receiptFileName', () => {
+  it('nama file aman dari nomor & nama toko', () => {
+    expect(receiptFileName({ title: 'Toko Maju (Jaya)!', number: '0007', date: 0, items: [] })).toBe(
+      'nota-0007-toko-maju-jaya.png',
+    );
+    expect(receiptFileName({ title: '', date: 0, items: [] })).toBe('nota.png');
   });
 });

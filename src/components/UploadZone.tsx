@@ -11,14 +11,14 @@ import './UploadZone.css';
 
 const COPY = {
   image: {
-    title: 'Belum ada gambar',
-    description: 'Upload foto atau gambar untuk mulai menyalin tulisan.',
-    upload: 'Upload gambar',
+    title: 'Belum ada foto',
+    description: 'Upload foto struk, nota, atau catatan belanja.',
+    upload: 'Upload foto',
     formats: `JPG, PNG, WEBP hingga ${MAX_FILE_SIZE_LABEL}.`,
   },
   audio: {
     title: 'Belum ada voice note',
-    description: 'Upload voice note (misalnya dari WhatsApp) atau rekam langsung.',
+    description: 'Sebutkan barang dan harganya lewat voice note (misalnya dari WhatsApp) atau rekam langsung.',
     upload: 'Upload audio',
     formats: `OPUS, OGG, MP3, M4A, WAV, WEBM hingga ${MAX_AUDIO_SIZE_LABEL}.`,
   },

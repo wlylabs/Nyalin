@@ -6,7 +6,7 @@
   margin: 0 calc(-1 * var(--space-3));
 }
 
-.result-toolbar__copy {
+.result-toolbar__desktop {
   display: none;
 }
 
@@ -16,7 +16,7 @@
     margin: 0;
   }
 
-  .result-toolbar__copy {
+  .result-toolbar__desktop {
     display: inline-flex;
     margin-right: var(--space-2);
   }

@@ -1,0 +1,93 @@
+.print-root {
+  display: none;
+}
+
+@media print {
+  @page {
+    margin: 10mm;
+  }
+
+  body > :not(.print-root) {
+    display: none !important;
+  }
+
+  .print-root {
+    display: block;
+  }
+
+  .receipt-paper {
+    max-width: 80mm;
+    margin: 0 auto;
+    color: #000;
+    font-size: 10pt;
+    line-height: 1.35;
+  }
+
+  .receipt-paper__head {
+    padding-bottom: 3mm;
+    border-bottom: 1px dashed #000;
+    text-align: center;
+  }
+
+  .receipt-paper__head h2 {
+    margin-bottom: 1mm;
+    font-size: 13pt;
+  }
+
+  .receipt-paper table {
+    width: 100%;
+    margin: 2mm 0;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .receipt-paper th {
+    border-bottom: 1px solid #000;
+    font-size: 8pt;
+    text-align: left;
+  }
+
+  .receipt-paper th,
+  .receipt-paper td {
+    padding: 0.8mm 0.6mm;
+    vertical-align: top;
+  }
+
+  .receipt-paper th:nth-child(n + 3),
+  .receipt-paper td:nth-child(n + 3) {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .receipt-paper__sum {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.6mm 3mm;
+    margin: 0;
+    padding-top: 2mm;
+    border-top: 1px dashed #000;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .receipt-paper__sum dd {
+    margin: 0;
+    text-align: right;
+  }
+
+  .receipt-paper__total {
+    font-size: 12pt;
+    font-weight: 700;
+  }
+
+  .receipt-paper__note {
+    margin-top: 2mm;
+  }
+
+  .receipt-paper__sign {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6mm;
+    padding-bottom: 14mm;
+    font-size: 9pt;
+  }
+}

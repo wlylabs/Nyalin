@@ -7,9 +7,9 @@ import '../views/views.css';
 import { AppShell } from './AppShell';
 
 export const metadata: Metadata = {
-  title: { default: 'Nyalin — Ubah gambar dan suara jadi tulisan', template: '%s · Nyalin' },
+  title: { default: 'Nyalin — Nota digital dari foto struk & voice note', template: '%s · Nyalin' },
   description:
-    'Foto, kirim gambar, atau voice note. Nyalin jadiin tulisan yang bisa kamu edit, salin, dan unduh. Diproses langsung di perangkatmu.',
+    'Foto struk, catatan belanja, atau sebut belanjaan lewat voice note — Nyalin menyusunnya jadi nota digital berisi jumlah, nama barang, harga, dan total. Kirim ke WhatsApp, simpan sebagai gambar, atau cetak.',
   applicationName: 'Nyalin',
   // iOS: buka dari layar utama tanpa bilah Safari, judul ikon "Nyalin".
   appleWebApp: { capable: true, title: 'Nyalin', statusBarStyle: 'default' },

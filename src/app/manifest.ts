@@ -10,10 +10,10 @@ const IMAGE_ACCEPT = ['image/jpeg', 'image/png', 'image/webp', '.jpg', '.jpeg', 
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: '/',
-    name: 'Nyalin — Gambar & suara jadi tulisan',
+    name: 'Nyalin — Nota digital',
     short_name: 'Nyalin',
     description:
-      'Foto, kirim gambar, atau voice note. Nyalin jadiin tulisan yang bisa kamu edit, salin, dan unduh — diproses langsung di perangkatmu.',
+      'Foto struk atau sebut belanjaan lewat voice note, langsung jadi nota digital: jumlah, nama barang, harga, dan total. Kirim ke WhatsApp, simpan gambar, atau cetak.',
     lang: 'id',
     dir: 'ltr',
     start_url: '/?source=pwa',
@@ -23,7 +23,7 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: 'any',
     background_color: '#ffffff',
     theme_color: '#ffffff',
-    categories: ['productivity', 'utilities'],
+    categories: ['business', 'finance', 'productivity'],
     prefer_related_applications: false,
     icons: [
       { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
@@ -37,34 +37,39 @@ export default function manifest(): MetadataRoute.Manifest {
         sizes: '780x1688',
         type: 'image/png',
         form_factor: 'narrow',
-        label: 'Pilih gambar atau voice note',
+        label: 'Pilih foto struk atau voice note',
       },
       {
         src: '/screenshots/hasil-ponsel.png',
         sizes: '780x1688',
         type: 'image/png',
         form_factor: 'narrow',
-        label: 'Hasil tulisan siap disalin',
+        label: 'Nota siap dibagikan',
       },
       {
         src: '/screenshots/hasil-desktop.png',
         sizes: '1280x800',
         type: 'image/png',
         form_factor: 'wide',
-        label: 'Gambar asli dan hasil tulisan berdampingan',
+        label: 'Foto struk dan nota berdampingan',
       },
     ],
     shortcuts: [
       {
-        name: 'Salin dari gambar',
-        short_name: 'Gambar',
+        name: 'Nota dari foto struk',
+        short_name: 'Foto struk',
         url: '/?mode=gambar&source=shortcut',
         icons: [{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
       },
       {
-        name: 'Salin voice note',
+        name: 'Nota dari voice note',
         short_name: 'Voice note',
         url: '/?mode=suara&source=shortcut',
+        icons: [{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
+      },
+      {
+        name: 'Nota manual',
+        url: '/?mode=manual&source=shortcut',
         icons: [{ src: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
       },
       {

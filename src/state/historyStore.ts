@@ -1,24 +1,29 @@
 import { useSyncExternalStore } from 'react';
 
 import type { MediaKind } from '../lib/media';
+import type { Receipt } from '../lib/receipt';
 
 /**
  * Riwayat disimpan hanya di browser ini (localStorage).
- * Yang disimpan: teks hasil + thumbnail kecil (gambar) atau durasi (suara).
+ * Yang disimpan: nota, teks hasil baca + thumbnail kecil (gambar) atau durasi (suara).
  * Gambar dan rekaman suara asli tidak pernah disimpan.
  */
 export interface HistoryEntry {
   id: string;
   createdAt: number;
-  /** Entri lama (sebelum ada voice note) tidak punya field ini → dianggap gambar. */
-  kind?: MediaKind;
+  /** Entri lama (sebelum ada voice note) tidak punya field ini → dianggap gambar. "manual" = nota tanpa foto/suara. */
+  kind?: MediaKind | 'manual';
   fileName: string;
   /** Data URL JPEG kecil (±200px). Kosong untuk suara. */
   thumbnail: string;
   /** Durasi suara dalam detik. */
   duration?: number | null;
   text: string;
+  /** Nota digital dari hasil ini. */
+  receipt?: Receipt | null;
 }
+
+export type HistoryPatch = Partial<Pick<HistoryEntry, 'text' | 'receipt'>>;
 
 const STORAGE_KEY = 'nyalin:history:v1';
 const MAX_ENTRIES = 30;
@@ -87,10 +92,13 @@ export const historyStore = {
     write([full, ...read()].slice(0, MAX_ENTRIES));
     return full;
   },
-  updateText(id: string, text: string) {
+  update(id: string, patch: HistoryPatch) {
     const entries = read();
     if (!entries.some((e) => e.id === id)) return;
-    write(entries.map((e) => (e.id === id ? { ...e, text } : e)));
+    write(entries.map((e) => (e.id === id ? { ...e, ...patch } : e)));
+  },
+  updateText(id: string, text: string) {
+    historyStore.update(id, { text });
   },
   /** Mengembalikan entri yang baru dihapus (untuk "Urungkan"). */
   restore(entry: HistoryEntry) {

@@ -39,7 +39,7 @@ test.describe('PWA', () => {
     }, bytes);
 
     await page.goto('/?shared=1');
-    await expect(page.getByRole('heading', { name: 'Cek gambarnya dulu' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Cek fotonya dulu' })).toBeVisible();
     await expect(page.getByText('dari-whatsapp.png')).toBeVisible();
     await expect(page).toHaveURL(/\/$/);
   });

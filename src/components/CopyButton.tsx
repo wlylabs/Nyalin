@@ -8,8 +8,9 @@ import { copyText } from '../lib/clipboard';
 export function CopyButton({
   text,
   label = 'Salin teks',
+  successMessage = 'Teks berhasil disalin.',
   ...props
-}: { text: string; label?: string } & Omit<ButtonProps, 'onClick' | 'icon' | 'children'>) {
+}: { text: string; label?: string; successMessage?: string } & Omit<ButtonProps, 'onClick' | 'icon' | 'children'>) {
   const toast = useToast();
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -24,7 +25,7 @@ export function CopyButton({
       setCopied(true);
       clearTimeout(timer.current);
       timer.current = setTimeout(() => setCopied(false), 3000);
-      toast.show({ message: 'Teks berhasil disalin.', tone: 'success' });
+      toast.show({ message: successMessage, tone: 'success' });
     } catch {
       toast.show({ message: 'Teks belum bisa disalin. Pilih teks lalu salin manual.', tone: 'error' });
     }

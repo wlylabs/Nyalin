@@ -19,8 +19,9 @@ describe('nyalinReducer', () => {
     expect(s.phase === 'processing' && s.progress.progress).toBe(0.5);
     s = nyalinReducer(s, { type: 'success', result: { text: 'halo', lowConfidence: false, historyId: 'h1' } });
     expect(s.phase).toBe('result');
-    s = nyalinReducer(s, { type: 'edit', text: 'halo dunia' });
-    expect(s.phase === 'result' && s.result.text).toBe('halo dunia');
+    const receipt = { title: 'Toko', date: 0, items: [{ id: 'a', qty: 1, name: 'Beras', price: 1000 }] };
+    s = nyalinReducer(s, { type: 'edit-receipt', receipt });
+    expect(s.phase === 'result' && s.result.receipt).toBe(receipt);
   });
 
   it('error pemilihan file tidak membuang gambar yang sudah dipilih', () => {
@@ -40,11 +41,16 @@ describe('nyalinReducer', () => {
     s = nyalinReducer(s, { type: 'fail', code: 'blurry', partialText: 'Rn ka' });
     expect(s.phase).toBe('error');
     expect(nyalinReducer(s, { type: 'start' }).phase).toBe('processing');
-    const partial = nyalinReducer(s, { type: 'show-partial', historyId: null });
+    const partial = nyalinReducer(s, {
+      type: 'show-partial',
+      historyId: null,
+      receipt: { title: '', date: 0, items: [] },
+    });
     expect(partial.phase === 'result' && partial.result).toEqual({
       text: 'Rn ka',
       lowConfidence: true,
       historyId: null,
+      receipt: { title: '', date: 0, items: [] },
     });
   });
 
