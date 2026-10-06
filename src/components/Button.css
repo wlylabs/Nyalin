@@ -1,0 +1,121 @@
+.btn {
+  --btn-bg: var(--color-surface);
+  --btn-fg: var(--color-ink);
+  --btn-border: var(--color-line-strong);
+  --btn-bg-hover: var(--color-surface-hover);
+  --btn-bg-active: var(--color-line);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--control-height);
+  padding: 0 var(--space-5);
+  border: 1px solid var(--btn-border);
+  border-radius: var(--radius-md);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  text-decoration: none;
+  user-select: none;
+  transition:
+    background-color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    transform var(--duration-fast) ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--btn-bg-hover);
+}
+
+.btn:active:not(:disabled) {
+  background: var(--btn-bg-active);
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.btn[aria-busy='true'] {
+  cursor: progress;
+  opacity: 0.85;
+}
+
+.btn__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.btn__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.btn--primary {
+  --btn-bg: var(--color-brand-600);
+  --btn-fg: #fff;
+  --btn-border: var(--color-brand-600);
+  --btn-bg-hover: var(--color-brand-700);
+  --btn-bg-active: var(--color-brand-800);
+}
+
+.btn--primary:hover:not(:disabled) {
+  border-color: var(--color-brand-700);
+}
+
+.btn--ghost {
+  --btn-bg: transparent;
+  --btn-border: transparent;
+  --btn-fg: var(--color-ink);
+}
+
+.btn--danger {
+  --btn-bg: var(--color-error);
+  --btn-fg: #fff;
+  --btn-border: var(--color-error);
+  --btn-bg-hover: #96190f;
+  --btn-bg-active: #7d140c;
+}
+
+.btn--sm {
+  min-height: var(--control-height-sm);
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.btn--sm .btn__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.btn--lg {
+  min-height: 52px;
+  padding: 0 var(--space-6);
+  font-size: var(--text-md);
+}
+
+.btn--full {
+  width: 100%;
+}
+
+/* Status sukses (mis. setelah teks disalin) — ikon + label berubah, bukan hanya warna. */
+.btn[data-state='success'] {
+  --btn-bg: var(--color-success-bg);
+  --btn-fg: var(--color-success);
+  --btn-border: var(--color-success);
+  --btn-bg-hover: var(--color-success-bg);
+}
+
+.btn--primary[data-state='success'] {
+  --btn-bg: var(--color-success);
+  --btn-fg: #fff;
+  --btn-bg-hover: var(--color-success);
+  --btn-bg-active: var(--color-success);
+}

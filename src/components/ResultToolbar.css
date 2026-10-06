@@ -1,0 +1,23 @@
+.result-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0 calc(-1 * var(--space-3));
+}
+
+.result-toolbar__copy {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .result-toolbar {
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .result-toolbar__copy {
+    display: inline-flex;
+    margin-right: var(--space-2);
+  }
+}

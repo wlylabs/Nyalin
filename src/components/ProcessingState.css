@@ -1,0 +1,70 @@
+.processing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.processing__title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+}
+
+.processing__description {
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.processing__meter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.processing__percent {
+  min-width: 3.5ch;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.progress {
+  position: relative;
+  flex: 1;
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-100);
+}
+
+.progress__bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: var(--color-brand-600);
+  transition: width 240ms ease-out;
+}
+
+.progress--indeterminate .progress__bar {
+  width: 32%;
+  animation: progress-slide 1.3s ease-in-out infinite;
+}
+
+@keyframes progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(320%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress--indeterminate .progress__bar {
+    width: 100%;
+    opacity: 0.5;
+    animation: none;
+  }
+}

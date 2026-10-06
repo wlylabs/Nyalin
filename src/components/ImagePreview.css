@@ -1,0 +1,87 @@
+.image-preview {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-line);
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity var(--duration-base) ease;
+}
+
+.image-preview--sm {
+  height: 180px;
+}
+
+.image-preview--md {
+  height: clamp(220px, 46dvh, 460px);
+}
+
+.image-preview--lg {
+  height: clamp(260px, 60dvh, 640px);
+}
+
+.image-preview.is-dimmed img {
+  opacity: 0.55;
+}
+
+.image-preview__expand {
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-full);
+  background: rgb(255 255 255 / 0.94);
+  color: var(--color-ink);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  box-shadow: var(--shadow-sm);
+}
+
+.image-preview__expand:hover {
+  background: #fff;
+}
+
+.image-preview__expand svg {
+  width: 16px;
+  height: 16px;
+}
+
+.image-viewer {
+  display: flex;
+  justify-content: center;
+  max-height: 68dvh;
+  overflow: auto;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  overscroll-behavior: contain;
+}
+
+.image-viewer img {
+  max-height: 68dvh;
+  object-fit: contain;
+  cursor: zoom-in;
+}
+
+.image-viewer.is-zoomed {
+  justify-content: flex-start;
+}
+
+.image-viewer.is-zoomed img {
+  max-width: none;
+  max-height: none;
+  cursor: zoom-out;
+}
