@@ -25,65 +25,13 @@
   }
 }
 
-/* Home */
-.hero {
-  padding: var(--space-2) 0 var(--space-2);
+/* Nota */
+.nota-layout {
+  max-width: 760px;
+  margin-inline: auto;
 }
 
-.hero__title {
-  font-size: var(--text-3xl);
-  font-weight: var(--weight-bold);
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  text-wrap: balance;
-}
-
-.hero__subtitle {
-  max-width: 46ch;
-  margin-top: var(--space-3);
-  color: var(--color-ink-muted);
-  font-size: var(--text-md);
-  line-height: var(--leading-normal);
-  text-wrap: pretty;
-}
-
-@media (min-width: 768px) {
-  .hero {
-    padding: var(--space-6) 0 var(--space-4);
-    text-align: center;
-  }
-
-  .hero__title {
-    font-size: var(--text-4xl);
-  }
-
-  .hero__subtitle {
-    margin-inline: auto;
-    font-size: var(--text-lg);
-  }
-
-  .home .privacy-note {
-    justify-content: center;
-  }
-}
-
-/* Result */
-.result-layout {
-  gap: var(--space-6);
-}
-
-.result-layout__media {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  min-width: 0;
-}
-
-.result-layout__media .image-preview {
-  height: 200px;
-}
-
-.result-layout__content {
+.nota-layout__content {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -100,44 +48,6 @@
 .result-hint {
   color: var(--color-ink-subtle);
   font-size: var(--text-xs);
-}
-
-.media-note {
-  color: var(--color-ink-subtle);
-  font-size: var(--text-xs);
-}
-
-@media (min-width: 768px) {
-  .result-layout__media .image-preview {
-    height: 320px;
-  }
-}
-
-@media (min-width: 768px) {
-  .result-layout {
-    display: flex;
-    flex-direction: column;
-  }
-}
-
-@media (min-width: 960px) {
-  .result-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    gap: var(--space-10);
-    align-items: start;
-  }
-
-  .result-layout__media {
-    position: sticky;
-    top: calc(var(--navbar-height) + var(--space-8));
-    order: 0;
-  }
-
-  .result-layout__media .image-preview {
-    height: calc(100dvh - var(--navbar-height) - 12rem);
-    min-height: 320px;
-  }
 }
 
 /* History */
@@ -227,7 +137,7 @@
   margin-top: var(--space-12);
 }
 
-.history-item__thumb--audio {
+.history-item__thumb--icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -235,27 +145,24 @@
   color: var(--color-brand-600);
 }
 
-.history-item__thumb--audio svg {
+.history-item__thumb--icon svg {
   width: 24px;
   height: 24px;
 }
 
-/* Nota manual: tanpa kolom foto/suara. */
-@media (min-width: 960px) {
-  .result-layout--solo {
-    display: block;
-    max-width: 760px;
-    margin-inline: auto;
-  }
-}
-
-/* Beranda: jalan pintas nota manual di bawah area upload. */
-.home-manual {
-  display: flex;
-  flex-wrap: wrap;
+/* Halaman offline */
+.offline-icon {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2) var(--space-3);
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
   color: var(--color-ink-muted);
-  font-size: var(--text-sm);
+}
+
+.offline-icon svg {
+  width: 24px;
+  height: 24px;
 }

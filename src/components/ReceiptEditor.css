@@ -62,12 +62,12 @@
   color: var(--color-ink-subtle);
 }
 
-.receipt__meta {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
-  gap: var(--space-2) var(--space-3);
-  padding-bottom: var(--space-3);
-  border-bottom: 1px dashed var(--color-line-strong);
+.receipt__auto {
+  margin-top: var(--space-1);
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
 }
 
 .receipt-field {
@@ -75,10 +75,6 @@
   flex-direction: column;
   gap: var(--space-1);
   min-width: 0;
-}
-
-.receipt-field--wide {
-  grid-column: 1 / -1;
 }
 
 .receipt-field label {
@@ -153,7 +149,7 @@
 /* Judul kolom. Ponsel: hanya baris angka (nama barang jelas dari placeholder-nya). */
 .receipt__columns {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr) 40px;
+  grid-template-columns: 56px minmax(0, 1.4fr) minmax(0, 1fr) 40px;
   grid-template-areas: 'qty price sub sub';
   gap: var(--space-2);
   color: var(--color-ink-subtle);
@@ -193,7 +189,7 @@
 /* Ponsel: nama barang di baris atas, angka di baris bawah. */
 .receipt-row {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr) 40px;
+  grid-template-columns: 56px minmax(0, 1.4fr) minmax(0, 1fr) 40px;
   grid-template-areas:
     'name name name remove'
     'qty price subtotal subtotal';
@@ -312,16 +308,6 @@
 
   .receipt-row__name {
     font-weight: var(--weight-regular);
-  }
-}
-
-@container (min-width: 520px) {
-  .receipt__meta {
-    grid-template-columns: 8rem 11rem minmax(0, 1fr);
-  }
-
-  .receipt-field--wide {
-    grid-column: auto;
   }
 }
 

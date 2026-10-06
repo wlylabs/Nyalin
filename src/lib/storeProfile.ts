@@ -35,20 +35,29 @@ export function saveStoreProfile(profile: StoreProfile): void {
   }
 }
 
-/** Nomor nota berikutnya: "0001", "0002", … */
-export function nextReceiptNumber(): string {
-  const current = readJson<number>(COUNTER_KEY) ?? 0;
-  const next = Number.isFinite(current) ? current + 1 : 1;
+function readCounter(): number {
+  const value = readJson<number>(COUNTER_KEY) ?? 0;
+  return Number.isFinite(value) ? value : 0;
+}
+
+/** Nomor nota berikutnya ("0001", "0002", …) tanpa memakainya — nota kosong tidak menghabiskan nomor. */
+export function peekReceiptNumber(): string {
+  return String(readCounter() + 1).padStart(4, '0');
+}
+
+/** Tandai nomor sudah terpakai (dipanggil saat nota pertama kali tersimpan). */
+export function claimReceiptNumber(number: string): void {
+  const value = Number(number);
+  if (!Number.isInteger(value) || value <= readCounter()) return;
   try {
-    localStorage.setItem(COUNTER_KEY, JSON.stringify(next));
+    localStorage.setItem(COUNTER_KEY, JSON.stringify(value));
   } catch {
-    // Tetap kembalikan nomor walau tidak tersimpan.
+    // Mode privat / kuota penuh: nomor hanya tidak diingat.
   }
-  return String(next).padStart(4, '0');
 }
 
 /** Nilai awal nota baru: identitas toko dari profil + nomor nota berikutnya. */
 export function receiptDefaults(): ReceiptDefaults {
   const profile = getStoreProfile();
-  return { title: profile.name, address: profile.address, number: nextReceiptNumber() };
+  return { title: profile.name, address: profile.address, number: peekReceiptNumber() };
 }

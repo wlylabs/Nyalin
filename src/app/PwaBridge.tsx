@@ -3,19 +3,16 @@
 import { useEffect, useRef } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '../components/Toast';
-import { useNyalin } from '../state/NyalinProvider';
-import { consumeLaunchedFiles, initInstallPrompt, takeSharedFile } from '../lib/pwa';
+import { initInstallPrompt } from '../lib/pwa';
 
 /**
- * Menghubungkan fitur PWA dengan alur aplikasi:
+ * Menghubungkan fitur PWA dengan aplikasi:
  * - registrasi service worker + tawaran "Muat ulang" saat ada versi baru
- * - file dari menu "Bagikan" (share target) & "Buka dengan" (file handler)
- * - shortcut ikon aplikasi (?mode=gambar|suara|manual)
+ * - shortcut ikon aplikasi (?source=shortcut)
  * - pemberitahuan offline/online
  */
 export function PwaBridge() {
   const toast = useToast();
-  const { selectFile, setInputMode, startManual } = useNyalin();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -50,33 +47,18 @@ export function PwaBridge() {
     };
   }, [toast]);
 
-  // File dari luar aplikasi & shortcut.
+  // Shortcut ikon aplikasi membawa ?source=…; rapikan URL-nya.
   useEffect(() => {
     if (handled.current) return;
     handled.current = true;
-    consumeLaunchedFiles((file) => selectFile(file));
-
-    const shared = searchParams.get('shared');
-    const mode = searchParams.get('mode');
-    if (mode === 'suara') setInputMode('audio');
-    if (mode === 'gambar') setInputMode('image');
-    if (mode === 'manual') startManual();
-    if (shared === '1') {
-      void takeSharedFile().then((file) => {
-        if (file) selectFile(file);
-        else toast.show({ message: 'File yang dibagikan tidak ditemukan. Coba bagikan lagi.', tone: 'error' });
-      });
-    } else if (shared === 'failed') {
-      toast.show({ message: 'File belum bisa diterima. Buka Nyalin sekali, lalu bagikan lagi.', tone: 'error' });
-    }
-    if (shared || mode || searchParams.get('source')) router.replace(pathname, { scroll: false });
-  }, [searchParams, selectFile, setInputMode, startManual, toast, router, pathname]);
+    if (searchParams.get('source')) router.replace(pathname, { scroll: false });
+  }, [searchParams, router, pathname]);
 
   // Status koneksi.
   useEffect(() => {
     const offline = () =>
       toast.show({
-        message: 'Kamu sedang offline. Fitur yang sudah pernah dipakai tetap bisa jalan.',
+        message: 'Kamu sedang offline. Nota tetap bisa dibuat dan tersimpan di perangkat ini.',
         tone: 'info',
         duration: 8000,
       });

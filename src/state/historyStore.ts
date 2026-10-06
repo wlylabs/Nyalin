@@ -1,29 +1,29 @@
 import { useSyncExternalStore } from 'react';
 
-import type { MediaKind } from '../lib/media';
 import type { Receipt } from '../lib/receipt';
 
 /**
- * Riwayat disimpan hanya di browser ini (localStorage).
- * Yang disimpan: nota, teks hasil baca + thumbnail kecil (gambar) atau durasi (suara).
- * Gambar dan rekaman suara asli tidak pernah disimpan.
+ * Riwayat nota, disimpan hanya di browser ini (localStorage).
+ * Entri dari versi lama (nota dari foto struk / voice note) masih punya field sumber
+ * seperti nama file dan teks hasil baca; entri baru cukup berisi notanya.
  */
 export interface HistoryEntry {
   id: string;
   createdAt: number;
-  /** Entri lama (sebelum ada voice note) tidak punya field ini → dianggap gambar. "manual" = nota tanpa foto/suara. */
-  kind?: MediaKind | 'manual';
-  fileName: string;
-  /** Data URL JPEG kecil (±200px). Kosong untuk suara. */
-  thumbnail: string;
-  /** Durasi suara dalam detik. */
-  duration?: number | null;
-  text: string;
-  /** Nota digital dari hasil ini. */
   receipt?: Receipt | null;
+  /** Versi lama: jenis sumber ("image", "audio", "manual"). */
+  kind?: string;
+  /** Versi lama: nama file foto/voice note. */
+  fileName?: string;
+  /** Versi lama: thumbnail foto (data URL). */
+  thumbnail?: string;
+  /** Versi lama: durasi voice note (detik). */
+  duration?: number | null;
+  /** Versi lama: teks hasil baca foto/suara. */
+  text?: string;
 }
 
-export type HistoryPatch = Partial<Pick<HistoryEntry, 'text' | 'receipt'>>;
+export type HistoryPatch = Partial<Pick<HistoryEntry, 'receipt'>>;
 
 const STORAGE_KEY = 'nyalin:history:v1';
 const MAX_ENTRIES = 30;
@@ -96,9 +96,6 @@ export const historyStore = {
     const entries = read();
     if (!entries.some((e) => e.id === id)) return;
     write(entries.map((e) => (e.id === id ? { ...e, ...patch } : e)));
-  },
-  updateText(id: string, text: string) {
-    historyStore.update(id, { text });
   },
   /** Mengembalikan entri yang baru dihapus (untuk "Urungkan"). */
   restore(entry: HistoryEntry) {
