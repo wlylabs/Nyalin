@@ -1,0 +1,133 @@
+/*
+ * Nyalin design tokens.
+ * Satu warna brand (tinta hijau-teal), neutral hangat, dan warna semantik.
+ * Semua komponen hanya membaca token di bawah ini.
+ */
+:root {
+  color-scheme: light;
+
+  /* Brand */
+  --color-brand-50: #eaf5f2;
+  --color-brand-100: #cfe8e1;
+  --color-brand-500: #138170;
+  --color-brand-600: #0d6e5f; /* primary — 5.9:1 di atas putih */
+  --color-brand-700: #0a5a4e;
+  --color-brand-800: #08483f;
+
+  /* Neutral */
+  --color-ink: #17201e; /* teks utama — 15:1 */
+  --color-ink-muted: #4f5b58; /* teks sekunder — 7:1 */
+  --color-ink-subtle: #5f6b68; /* teks tersier — 5.5:1 di putih, 5.1:1 di latar sunken */
+  --color-line: #dfe4e2;
+  --color-line-strong: #c4ccc9;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f5f7f6;
+  --color-surface-hover: #eef1f0;
+  --color-backdrop: rgb(15 22 20 / 0.56);
+
+  /* Semantic */
+  --color-success: #1d7a3e;
+  --color-success-bg: #e8f4ec;
+  --color-error: #b42318;
+  --color-error-bg: #fdecea;
+  --color-warning: #8a5a00;
+  --color-warning-bg: #fdf3dc;
+
+  --color-focus: #0d6e5f;
+
+  /* Typography */
+  --font-sans:
+    'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-editor: var(--font-sans);
+
+  --text-xs: 0.8125rem; /* 13 */
+  --text-sm: 0.875rem; /* 14 */
+  --text-md: 1rem; /* 16 */
+  --text-lg: 1.125rem; /* 18 */
+  --text-xl: 1.375rem; /* 22 */
+  --text-2xl: 1.75rem; /* 28 */
+  --text-3xl: 2.25rem; /* 36 */
+  --text-4xl: 3rem; /* 48 */
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.4;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.75;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Spacing (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+
+  /* Elevation — tipis saja */
+  --shadow-sm: 0 1px 2px rgb(23 32 30 / 0.06);
+  --shadow-md: 0 4px 16px rgb(23 32 30 / 0.08);
+  --shadow-lg: 0 12px 40px rgb(23 32 30 / 0.14);
+
+  /* Sizing */
+  --touch-target: 48px;
+  --control-height: 48px;
+  --control-height-sm: 40px;
+  --content-max: 1120px;
+  --content-narrow: 640px;
+  --navbar-height: 60px;
+
+  /* Motion — token Material 3 (material-web). Gerak dipakai untuk kesinambungan & status, bukan hiasan. */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --duration-short2: 100ms;
+  --duration-short4: 200ms;
+  --duration-medium2: 300ms;
+  --duration-medium4: 400ms;
+  --duration-long2: 500ms;
+  --duration-long4: 600ms;
+  --duration-extra-long2: 800ms;
+
+  --duration-fast: 120ms;
+  --duration-base: var(--duration-short4);
+  --ease-out: var(--ease-emphasized-decelerate);
+
+  --z-sticky: 10;
+  --z-toast: 50;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --navbar-height: 68px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-short2: 0ms;
+    --duration-short4: 0ms;
+    --duration-medium2: 0ms;
+    --duration-medium4: 0ms;
+    --duration-long2: 0ms;
+    --duration-long4: 0ms;
+    --duration-extra-long2: 0ms;
+  }
+}

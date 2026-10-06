@@ -1,0 +1,65 @@
+.upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 220px;
+  padding: var(--space-6) var(--space-5);
+  border: 1.5px dashed var(--color-line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-sunken);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
+}
+
+.upload-zone:hover {
+  border-color: var(--color-brand-500);
+}
+
+.upload-zone.is-dragging {
+  border-style: solid;
+  border-color: var(--color-brand-600);
+  background: var(--color-brand-50);
+}
+
+.upload-zone .empty-state__actions {
+  display: none;
+}
+
+.upload-zone__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.upload-zone__hint {
+  color: var(--color-ink-subtle);
+  font-size: var(--text-xs);
+  text-align: center;
+}
+
+.upload-zone__drop-hint {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .upload-zone {
+    min-height: 340px;
+    padding: var(--space-10) var(--space-8);
+  }
+
+  .upload-zone .empty-state__actions {
+    display: flex;
+  }
+}
+
+/* Petunjuk drag & drop hanya untuk perangkat dengan mouse. */
+@media (min-width: 768px) and (pointer: fine) {
+  .upload-zone__drop-hint {
+    display: inline;
+  }
+}

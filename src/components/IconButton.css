@@ -1,0 +1,49 @@
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-ink-muted);
+  transition:
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+}
+
+.icon-btn span {
+  display: inline-flex;
+}
+
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  color: var(--color-ink);
+}
+
+.icon-btn:active:not(:disabled) {
+  background: var(--color-line);
+}
+
+.icon-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.icon-btn--secondary {
+  border-color: var(--color-line-strong);
+  background: var(--color-surface);
+}
+
+.icon-btn--sm {
+  width: 40px;
+  height: 40px;
+}

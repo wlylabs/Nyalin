@@ -1,0 +1,53 @@
+.action-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--z-sticky);
+  margin: auto calc(-1 * var(--space-4)) calc(-1 * var(--space-8));
+  padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-line);
+  background: rgb(255 255 255 / 0.96);
+  backdrop-filter: saturate(1.4) blur(8px);
+}
+
+.action-bar__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* Label panjang turun ke baris baru; tombol utama (terakhir) tetap paling bawah. */
+.action-bar__inner > .btn {
+  flex: 1 1 auto;
+}
+
+/* Toast tidak menutupi action bar. */
+body:has(.action-bar) .toast-region {
+  --toast-offset: calc(var(--control-height) + var(--space-8));
+}
+
+@media (min-width: 768px) {
+  .action-bar {
+    position: static;
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    backdrop-filter: none;
+  }
+
+  .action-bar__inner {
+    flex-wrap: nowrap;
+  }
+
+  .action-bar__inner > .btn {
+    flex: 0 0 auto;
+  }
+
+  .action-bar--mobile-only {
+    display: none;
+  }
+
+  body:has(.action-bar) .toast-region {
+    --toast-offset: var(--space-8);
+  }
+}
