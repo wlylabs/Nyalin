@@ -14,7 +14,7 @@ import { ResultEditor, type ResultEditorHandle } from '../components/ResultEdito
 import { ResultToolbar } from '../components/ResultToolbar';
 import { countCharacters, countWords, formatNumber } from '../lib/text';
 import { formatDuration } from '../lib/audio';
-import { createReceipt, formatReceiptText, formatRupiah, receiptTotal, type Receipt } from '../lib/receipt';
+import { createReceipt, formatReceiptText, type Receipt } from '../lib/receipt';
 import type { ResultData, SelectedMedia } from '../state/nyalinReducer';
 import { useViewFocus } from './useViewFocus';
 
@@ -88,9 +88,7 @@ export function ResultView({
           </h1>
           <p className="result-header__meta" aria-live="polite">
             {showReceipt ? (
-              <>
-                {formatNumber(receipt.items.length)} barang · total {formatRupiah(receiptTotal(receipt.items))}
-              </>
+              <>{formatNumber(receipt.items.length)} barang</>
             ) : (
               <>
                 {formatNumber(words)} kata · {formatNumber(chars)} karakter
