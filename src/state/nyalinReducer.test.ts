@@ -1,6 +1,13 @@
 import { initialState, nyalinReducer, type NyalinState } from './nyalinReducer';
 
-const image = { kind: 'image' as const, url: 'blob:x', name: 'catatan.jpg', size: 1200, duration: null, fromHistory: false };
+const image = {
+  kind: 'image' as const,
+  url: 'blob:x',
+  name: 'catatan.jpg',
+  size: 1200,
+  duration: null,
+  fromHistory: false,
+};
 
 describe('nyalinReducer', () => {
   it('menjalankan alur gambar → proses → hasil → edit', () => {
@@ -34,7 +41,11 @@ describe('nyalinReducer', () => {
     expect(s.phase).toBe('error');
     expect(nyalinReducer(s, { type: 'start' }).phase).toBe('processing');
     const partial = nyalinReducer(s, { type: 'show-partial', historyId: null });
-    expect(partial.phase === 'result' && partial.result).toEqual({ text: 'Rn ka', lowConfidence: true, historyId: null });
+    expect(partial.phase === 'result' && partial.result).toEqual({
+      text: 'Rn ka',
+      lowConfidence: true,
+      historyId: null,
+    });
   });
 
   it('tidak memproses ulang thumbnail dari riwayat', () => {

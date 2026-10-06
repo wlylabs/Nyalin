@@ -60,11 +60,14 @@ export function useVoiceRecorder({ onComplete, onError }: Options) {
     recorderRef.current = null;
   }, []);
 
-  useEffect(() => () => {
-    discard.current = true;
-    if (recorderRef.current?.state === 'recording') recorderRef.current.stop();
-    release();
-  }, [release]);
+  useEffect(
+    () => () => {
+      discard.current = true;
+      if (recorderRef.current?.state === 'recording') recorderRef.current.stop();
+      release();
+    },
+    [release],
+  );
 
   const stop = useCallback(() => {
     discard.current = false;
@@ -89,7 +92,8 @@ export function useVoiceRecorder({ onComplete, onError }: Options) {
     // AudioContext dibuat sebelum await apa pun: iOS Safari hanya mengizinkannya dalam gesture user.
     let context: AudioContext | null = null;
     try {
-      const AudioCtx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       context = new AudioCtx();
       void context.resume();
     } catch {
@@ -106,7 +110,9 @@ export function useVoiceRecorder({ onComplete, onError }: Options) {
       release();
       setStatus('idle');
       const name = (error as DOMException)?.name;
-      callbacks.current.onError(name === 'NotAllowedError' || name === 'SecurityError' ? 'mic-denied' : 'mic-unavailable');
+      callbacks.current.onError(
+        name === 'NotAllowedError' || name === 'SecurityError' ? 'mic-denied' : 'mic-unavailable',
+      );
       return;
     }
     streamRef.current = stream;

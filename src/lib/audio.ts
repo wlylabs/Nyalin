@@ -73,7 +73,8 @@ export interface DecodedAudio {
  * lebih andal di Safari dibanding AudioContext({ sampleRate: 16000 }).
  */
 export async function decodeAudioForSpeech(blob: Blob): Promise<DecodedAudio> {
-  const AudioCtx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+  const AudioCtx =
+    window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
   const context = new AudioCtx();
   let decoded: AudioBuffer;
   try {

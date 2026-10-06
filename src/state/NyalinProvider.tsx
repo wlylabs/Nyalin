@@ -287,7 +287,19 @@ function useNyalinController() {
       openHistoryEntry,
       reset,
     }),
-    [state, inputMode, selectFile, start, cancel, showPartial, editText, setLanguage, reportError, openHistoryEntry, reset],
+    [
+      state,
+      inputMode,
+      selectFile,
+      start,
+      cancel,
+      showPartial,
+      editText,
+      setLanguage,
+      reportError,
+      openHistoryEntry,
+      reset,
+    ],
   );
 }
 

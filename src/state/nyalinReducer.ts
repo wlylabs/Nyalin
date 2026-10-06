@@ -116,7 +116,11 @@ export function nyalinReducer(state: NyalinState, action: NyalinAction): NyalinS
       return {
         phase: 'result',
         media: state.media,
-        result: { text: state.partialText ?? '', lowConfidence: Boolean(state.partialText), historyId: action.historyId },
+        result: {
+          text: state.partialText ?? '',
+          lowConfidence: Boolean(state.partialText),
+          historyId: action.historyId,
+        },
       };
 
     case 'edit':

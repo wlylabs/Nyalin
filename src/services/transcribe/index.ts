@@ -14,8 +14,7 @@ export type { SpeechLanguage, TranscribeProvider } from './types';
  * Untuk demo, `?stt=mock` di URL juga bisa dipakai.
  */
 function selectProvider(): TranscribeProvider {
-  const fromQuery =
-    typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('stt') : null;
+  const fromQuery = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('stt') : null;
   const id = (fromQuery ?? process.env.NEXT_PUBLIC_TRANSCRIBE_PROVIDER ?? 'whisper').toLowerCase();
   if (id === 'mock') return createMockProvider();
   if (id === 'api') return createApiProvider();

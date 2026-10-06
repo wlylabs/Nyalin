@@ -36,5 +36,7 @@ export function abortError(): DOMException {
 export function looksLikeNetworkError(error: unknown): boolean {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return true;
   const message = String((error as { message?: unknown })?.message ?? error).toLowerCase();
-  return /network|fetch|failed to load|load failed|networkerror|timeout|offline|importscripts|could not locate file|403|404/.test(message);
+  return /network|fetch|failed to load|load failed|networkerror|timeout|offline|importscripts|could not locate file|403|404/.test(
+    message,
+  );
 }

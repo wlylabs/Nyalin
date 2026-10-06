@@ -6,7 +6,10 @@ import './AudioPreview.css';
 
 const WAVE_BARS = 40;
 /** Tinggi batang deterministik (bukan acak per render) agar gelombang tidak "berkedip". */
-const WAVE = Array.from({ length: WAVE_BARS }, (_, i) => 0.28 + 0.72 * Math.abs(Math.sin(i * 1.7) * Math.cos(i * 0.45)));
+const WAVE = Array.from(
+  { length: WAVE_BARS },
+  (_, i) => 0.28 + 0.72 * Math.abs(Math.sin(i * 1.7) * Math.cos(i * 0.45)),
+);
 
 /**
  * Pratinjau voice note: pemutar native (paling aksesibel: keyboard, pembaca layar, kontrol kecepatan

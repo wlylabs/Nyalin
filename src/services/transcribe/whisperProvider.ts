@@ -102,7 +102,10 @@ export function createWhisperProvider(): TranscribeProvider {
         signal.addEventListener('abort', onAbort, { once: true });
         // Segmen hanya view (subarray); salin agar buffer bisa dipindahkan tanpa menyalin dua kali.
         const copies = segments.map((s) => s.slice());
-        w.postMessage({ type: 'transcribe', id, config: config(), segments: copies, language }, copies.map((s) => s.buffer));
+        w.postMessage(
+          { type: 'transcribe', id, config: config(), segments: copies, language },
+          copies.map((s) => s.buffer),
+        );
       });
     },
   };

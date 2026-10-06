@@ -46,7 +46,9 @@ export function SelectedView({
           {isAudio ? 'Cek voice note-nya dulu' : 'Cek gambarnya dulu'}
         </h1>
         <p className="view-subtitle">
-          {isAudio ? 'Putar sebentar untuk memastikan suaranya benar, lalu mulai.' : 'Pastikan tulisan terlihat jelas, lalu mulai.'}
+          {isAudio
+            ? 'Putar sebentar untuk memastikan suaranya benar, lalu mulai.'
+            : 'Pastikan tulisan terlihat jelas, lalu mulai.'}
         </p>
       </header>
 

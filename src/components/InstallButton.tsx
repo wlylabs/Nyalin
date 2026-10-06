@@ -32,7 +32,9 @@ export function InstallButton() {
           <li>
             Pilih <SquarePlus aria-hidden="true" /> <strong>Tambah ke Layar Utama</strong>.
           </li>
-          <li>Ketuk <strong>Tambah</strong>. Nyalin akan terbuka seperti aplikasi biasa.</li>
+          <li>
+            Ketuk <strong>Tambah</strong>. Nyalin akan terbuka seperti aplikasi biasa.
+          </li>
         </ol>
       </Modal>
     </>

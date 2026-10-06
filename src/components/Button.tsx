@@ -14,7 +14,18 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'secondary', size = 'md', icon, loading = false, fullWidth = false, className, children, disabled, type = 'button', ...rest },
+  {
+    variant = 'secondary',
+    size = 'md',
+    icon,
+    loading = false,
+    fullWidth = false,
+    className,
+    children,
+    disabled,
+    type = 'button',
+    ...rest
+  },
   ref,
 ) {
   const classes = ['btn', `btn--${variant}`, `btn--${size}`, fullWidth && 'btn--full', className]
@@ -29,7 +40,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       aria-busy={loading || undefined}
       {...rest}
     >
-      {loading ? <Spinner /> : icon ? <span className="btn__icon" aria-hidden="true">{icon}</span> : null}
+      {loading ? (
+        <Spinner />
+      ) : icon ? (
+        <span className="btn__icon" aria-hidden="true">
+          {icon}
+        </span>
+      ) : null}
       <span className="btn__label">{children}</span>
     </button>
   );

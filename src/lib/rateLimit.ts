@@ -10,7 +10,15 @@ export interface RateLimitResult {
   retryAfter: number;
 }
 
-export function createRateLimiter({ limit, windowMs, maxKeys = 10_000 }: { limit: number; windowMs: number; maxKeys?: number }) {
+export function createRateLimiter({
+  limit,
+  windowMs,
+  maxKeys = 10_000,
+}: {
+  limit: number;
+  windowMs: number;
+  maxKeys?: number;
+}) {
   const hits = new Map<string, number[]>();
 
   return function check(key: string, now = Date.now()): RateLimitResult {

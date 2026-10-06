@@ -7,7 +7,14 @@
  * - Share target: menerima gambar/voice note dari menu "Bagikan" di ponsel.
  */
 import { defaultCache } from '@serwist/turbopack/worker';
-import { CacheFirst, ExpirationPlugin, NetworkOnly, Serwist, type PrecacheEntry, type SerwistGlobalConfig } from 'serwist';
+import {
+  CacheFirst,
+  ExpirationPlugin,
+  NetworkOnly,
+  Serwist,
+  type PrecacheEntry,
+  type SerwistGlobalConfig,
+} from 'serwist';
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -61,7 +68,8 @@ self.addEventListener('fetch', (event) => {
  */
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  if (event.request.method !== 'GET' || !/\/_next\/static\/chunks\/turbopack-worker-[^/]+\.js$/.test(url.pathname)) return;
+  if (event.request.method !== 'GET' || !/\/_next\/static\/chunks\/turbopack-worker-[^/]+\.js$/.test(url.pathname))
+    return;
   event.stopImmediatePropagation();
   event.respondWith(
     (async () => {
@@ -83,7 +91,8 @@ const serwist = new Serwist({
       // File model Whisper (puluhan–ratusan MB) sudah di-cache Transformers.js sendiri;
       // jangan disimpan dua kali oleh service worker.
       matcher: ({ url, sameOrigin }) =>
-        !sameOrigin && (/(^|\.)(huggingface\.co|hf\.co)$/.test(url.hostname) || /\/resolve\/|\.onnx(_data)?$/.test(url.pathname)),
+        !sameOrigin &&
+        (/(^|\.)(huggingface\.co|hf\.co)$/.test(url.hostname) || /\/resolve\/|\.onnx(_data)?$/.test(url.pathname)),
       handler: new NetworkOnly(),
     },
     {

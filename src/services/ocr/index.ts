@@ -18,8 +18,7 @@ export const LOW_CONFIDENCE = 70;
  * Untuk demo, `?ocr=mock` di URL juga bisa dipakai.
  */
 function selectProvider(): OcrProvider {
-  const fromQuery =
-    typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('ocr') : null;
+  const fromQuery = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('ocr') : null;
   const id = (fromQuery ?? process.env.NEXT_PUBLIC_OCR_PROVIDER ?? 'tesseract').toLowerCase();
 
   if (id === 'mock') return createMockProvider();

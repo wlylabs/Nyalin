@@ -58,10 +58,7 @@ function joinWrappedLines(text: string): string {
   for (const line of lines) {
     const prev = out[out.length - 1];
     const canJoin =
-      prev !== undefined &&
-      prev.length >= WRAPPED_LINE_MIN &&
-      !/[.!?:;]$/.test(prev) &&
-      /^[a-zà-ÿ]/.test(line);
+      prev !== undefined && prev.length >= WRAPPED_LINE_MIN && !/[.!?:;]$/.test(prev) && /^[a-zà-ÿ]/.test(line);
     if (canJoin) out[out.length - 1] = `${prev} ${line}`;
     else out.push(line);
   }
@@ -79,7 +76,10 @@ export function tidyTranscript(raw: string, sentencesPerParagraph = 4): string {
     .replace(/ +([,.;:!?%])/g, '$1')
     .trim();
   if (!flat) return '';
-  const sentences = flat.match(/[^.!?]+[.!?]+["')\]]*|[^.!?]+$/g)?.map((s) => s.trim()).filter(Boolean) ?? [flat];
+  const sentences = flat
+    .match(/[^.!?]+[.!?]+["')\]]*|[^.!?]+$/g)
+    ?.map((s) => s.trim())
+    .filter(Boolean) ?? [flat];
   const paragraphs: string[] = [];
   for (let i = 0; i < sentences.length; i += sentencesPerParagraph) {
     paragraphs.push(sentences.slice(i, i + sentencesPerParagraph).join(' '));

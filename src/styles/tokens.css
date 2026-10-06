@@ -36,8 +36,8 @@
   --color-focus: #0d6e5f;
 
   /* Typography */
-  --font-sans: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, -apple-system,
-    'Segoe UI', Roboto, sans-serif;
+  --font-sans:
+    'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-editor: var(--font-sans);
 
   --text-xs: 0.8125rem; /* 13 */

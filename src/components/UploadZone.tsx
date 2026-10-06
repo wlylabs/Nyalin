@@ -100,7 +100,9 @@ export function UploadZone({
       </EmptyState>
       <p className="upload-zone__hint">
         <span className="upload-zone__drop-hint">
-          {kind === 'image' ? 'Tarik & lepas gambar ke sini, atau tempel dengan Ctrl+V. ' : 'Tarik & lepas file audio ke sini. '}
+          {kind === 'image'
+            ? 'Tarik & lepas gambar ke sini, atau tempel dengan Ctrl+V. '
+            : 'Tarik & lepas file audio ke sini. '}
         </span>
         {copy.formats}
       </p>
