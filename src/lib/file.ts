@@ -42,7 +42,7 @@ export function formatBytes(bytes: number): string {
 
 /** Nama file yang lebih ramah untuk foto kamera tanpa nama yang jelas. */
 export function displayFileName(name: string): string {
-  return name.trim() || 'Foto tanpa nama';
+  return name.trim() || 'File tanpa nama';
 }
 
 export function loadImage(src: string): Promise<HTMLImageElement> {

@@ -226,3 +226,16 @@
 .history-empty {
   margin-top: var(--space-12);
 }
+
+.history-item__thumb--audio {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-brand-50);
+  color: var(--color-brand-600);
+}
+
+.history-item__thumb--audio svg {
+  width: 24px;
+  height: 24px;
+}

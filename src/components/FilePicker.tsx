@@ -1,21 +1,25 @@
+'use client';
+
 import { createContext, useCallback, useContext, useMemo, useRef, type ReactNode } from 'react';
 import { ACCEPT_ATTR } from '../lib/file';
+import { AUDIO_ACCEPT_ATTR } from '../lib/audio';
+import type { MediaKind } from '../lib/media';
 
 interface FilePickerApi {
-  openFiles: () => void;
+  openFiles: (kind?: MediaKind) => void;
   openCamera: () => void;
 }
 
 const FilePickerContext = createContext<FilePickerApi | null>(null);
 
 /**
- * Satu pasang <input type="file"> untuk seluruh aplikasi, sehingga tombol mana pun
- * (hero, navbar, layar error) bisa membuka galeri atau kamera.
- * Kamera memakai `capture` — tidak ada permintaan izin dari aplikasi.
+ * Input file untuk seluruh aplikasi (gambar, kamera, audio), sehingga tombol mana pun
+ * bisa membuka pemilih yang tepat. Kamera memakai `capture` — tanpa permintaan izin dari aplikasi.
  */
 export function FilePickerProvider({ onFile, children }: { onFile: (file: File) => void; children: ReactNode }) {
-  const fileRef = useRef<HTMLInputElement>(null);
+  const imageRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
+  const audioRef = useRef<HTMLInputElement>(null);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,26 +33,20 @@ export function FilePickerProvider({ onFile, children }: { onFile: (file: File) 
 
   const api = useMemo<FilePickerApi>(
     () => ({
-      openFiles: () => fileRef.current?.click(),
+      openFiles: (kind = 'image') => (kind === 'audio' ? audioRef : imageRef).current?.click(),
       openCamera: () => cameraRef.current?.click(),
     }),
     [],
   );
 
+  const inputProps = { onChange: handleChange, className: 'sr-only', tabIndex: -1, 'aria-hidden': true } as const;
+
   return (
     <FilePickerContext.Provider value={api}>
       {children}
-      <input ref={fileRef} type="file" accept={ACCEPT_ATTR} onChange={handleChange} className="sr-only" tabIndex={-1} aria-hidden="true" />
-      <input
-        ref={cameraRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleChange}
-        className="sr-only"
-        tabIndex={-1}
-        aria-hidden="true"
-      />
+      <input ref={imageRef} type="file" accept={ACCEPT_ATTR} {...inputProps} />
+      <input ref={cameraRef} type="file" accept="image/*" capture="environment" {...inputProps} />
+      <input ref={audioRef} type="file" accept={AUDIO_ACCEPT_ATTR} {...inputProps} />
     </FilePickerContext.Provider>
   );
 }

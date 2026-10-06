@@ -1,13 +1,16 @@
-/** Kode error yang dipahami UI. Teksnya ada di `content/errors.ts`. */
+/** Kode error yang dipahami UI. Teksnya ada di `content/errors.ts` (berbeda untuk gambar & suara). */
 export type NyalinErrorCode =
   | 'unsupported'
   | 'too-large'
+  | 'too-long'
   | 'empty-file'
   | 'unreadable'
   | 'blurry'
   | 'empty-result'
-  | 'ocr-failed'
-  | 'network';
+  | 'process-failed'
+  | 'network'
+  | 'mic-denied'
+  | 'mic-unavailable';
 
 export class NyalinError extends Error {
   readonly code: NyalinErrorCode;
@@ -32,5 +35,5 @@ export function abortError(): DOMException {
 export function looksLikeNetworkError(error: unknown): boolean {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return true;
   const message = String((error as { message?: unknown })?.message ?? error).toLowerCase();
-  return /network|fetch|failed to load|load failed|networkerror|timeout|offline|importscripts/.test(message);
+  return /network|fetch|failed to load|load failed|networkerror|timeout|offline|importscripts|could not locate file|403|404/.test(message);
 }

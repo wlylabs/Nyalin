@@ -1,13 +1,24 @@
 import type { ReactNode } from 'react';
-import { ImageIcon } from 'lucide-react';
+import { AudioLines, ImageIcon } from 'lucide-react';
+import type { MediaKind } from '../lib/media';
 import { displayFileName, formatBytes } from '../lib/file';
 import './FileInfo.css';
 
-export function FileInfo({ name, size, action }: { name: string; size: number | null; action?: ReactNode }) {
+export function FileInfo({
+  name,
+  size,
+  action,
+  kind = 'image',
+}: {
+  name: string;
+  size: number | null;
+  action?: ReactNode;
+  kind?: MediaKind;
+}) {
   return (
     <div className="file-info">
       <span className="file-info__icon" aria-hidden="true">
-        <ImageIcon />
+        {kind === 'audio' ? <AudioLines /> : <ImageIcon />}
       </span>
       <div className="file-info__text">
         <p className="file-info__name" title={name}>

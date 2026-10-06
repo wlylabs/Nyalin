@@ -36,3 +36,19 @@ describe('excerpt', () => {
     expect(excerpt('pendek')).toBe('pendek');
   });
 });
+
+import { tidyTranscript } from './text';
+
+describe('tidyTranscript', () => {
+  it('membuang label non-ucapan dan merapikan spasi', () => {
+    expect(tidyTranscript(' [Musik]  Halo ,  apa kabar ? (tertawa) ')).toBe('Halo, apa kabar?');
+  });
+
+  it('mengelompokkan kalimat menjadi paragraf', () => {
+    expect(tidyTranscript('Satu. Dua. Tiga.', 2)).toBe('Satu. Dua.\n\nTiga.');
+  });
+
+  it('mengembalikan string kosong bila tidak ada ucapan', () => {
+    expect(tidyTranscript(' [Musik] ♪ ')).toBe('');
+  });
+});

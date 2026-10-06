@@ -1,5 +1,8 @@
+'use client';
+
 import { useState } from 'react';
-import { History, Plus, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { AudioLines, History, Plus, Trash2 } from 'lucide-react';
 import { Button } from '../components/Button';
 import { EmptyState } from '../components/EmptyState';
 import { IconButton } from '../components/IconButton';
@@ -7,6 +10,9 @@ import { Modal } from '../components/Modal';
 import { useToast } from '../components/Toast';
 import { excerpt } from '../lib/text';
 import { displayFileName } from '../lib/file';
+import { formatDuration } from '../lib/audio';
+import { useFilePicker } from '../components/FilePicker';
+import { useNyalin } from '../state/NyalinProvider';
 import { historyStore, useHistory, type HistoryEntry } from '../state/historyStore';
 import { useViewFocus } from './useViewFocus';
 
@@ -22,8 +28,21 @@ export function formatHistoryDate(timestamp: number, now = new Date()): string {
   return `${dateFormat.format(date)}, ${timeFormat.format(date)}`;
 }
 
-export function HistoryView({ onOpen, onStart }: { onOpen: (entry: HistoryEntry) => void; onStart: () => void }) {
+export function HistoryView() {
   const entries = useHistory();
+  const router = useRouter();
+  const nyalin = useNyalin();
+  const { openFiles } = useFilePicker();
+
+  const onOpen = (entry: HistoryEntry) => {
+    nyalin.openHistoryEntry(entry);
+    router.push('/');
+  };
+  const onStart = () => {
+    nyalin.reset();
+    router.push('/');
+    openFiles(nyalin.inputMode);
+  };
   const toast = useToast();
   const [confirmClear, setConfirmClear] = useState(false);
   const titleRef = useViewFocus<HTMLHeadingElement>(true);
@@ -43,7 +62,7 @@ export function HistoryView({ onOpen, onStart }: { onOpen: (entry: HistoryEntry)
           <h1 ref={titleRef} tabIndex={-1} className="view-title">
             Riwayat
           </h1>
-          <p className="view-subtitle">Hanya tersimpan di browser ini. Gambar asli tidak disimpan.</p>
+          <p className="view-subtitle">Hanya tersimpan di browser ini. Gambar dan suara asli tidak disimpan.</p>
         </div>
         {entries.length > 0 && (
           <Button size="sm" variant="ghost" icon={<Trash2 />} onClick={() => setConfirmClear(true)}>
@@ -57,7 +76,7 @@ export function HistoryView({ onOpen, onStart }: { onOpen: (entry: HistoryEntry)
           <EmptyState
             icon={<History />}
             title="Belum ada riwayat"
-            description="Hasil Nyalin akan muncul di sini supaya bisa kamu buka lagi."
+            description="Hasil Nyalin dari gambar dan voice note akan muncul di sini supaya bisa kamu buka lagi."
           >
             <Button variant="primary" icon={<Plus />} onClick={onStart}>
               Mulai Nyalin
@@ -69,7 +88,11 @@ export function HistoryView({ onOpen, onStart }: { onOpen: (entry: HistoryEntry)
           {entries.map((entry) => (
             <li key={entry.id} className="history-item">
               <button type="button" className="history-item__open" onClick={() => onOpen(entry)}>
-                {entry.thumbnail ? (
+                {entry.kind === 'audio' ? (
+                  <span className="history-item__thumb history-item__thumb--audio" aria-hidden="true">
+                    <AudioLines />
+                  </span>
+                ) : entry.thumbnail ? (
                   <img className="history-item__thumb" src={entry.thumbnail} alt="" loading="lazy" />
                 ) : (
                   <span className="history-item__thumb" aria-hidden="true" />
@@ -78,6 +101,7 @@ export function HistoryView({ onOpen, onStart }: { onOpen: (entry: HistoryEntry)
                   <span className="history-item__name">{displayFileName(entry.fileName)}</span>
                   <span className="history-item__date">
                     <time dateTime={new Date(entry.createdAt).toISOString()}>{formatHistoryDate(entry.createdAt)}</time>
+                    {entry.kind === 'audio' && ` · Voice note${entry.duration ? ` ${formatDuration(entry.duration)}` : ''}`}
                   </span>
                   <span className="history-item__excerpt">{excerpt(entry.text) || 'Teks kosong'}</span>
                 </span>

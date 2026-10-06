@@ -40,6 +40,7 @@ img {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
   color: inherit;
@@ -146,5 +147,46 @@ a {
   *::after {
     animation-duration: 0ms !important;
     transition-duration: 0ms !important;
+  }
+}
+
+/* Field: label + select/input (design system: input styles) */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field__label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.field__select {
+  min-height: var(--control-height);
+  padding: 0 var(--space-10) 0 var(--space-4);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%234f5b58' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 8 5 5 5-5'/%3E%3C/svg%3E")
+    no-repeat right 12px center;
+  font-size: var(--text-md);
+  appearance: none;
+  cursor: pointer;
+}
+
+.field__select:hover {
+  border-color: var(--color-ink-subtle);
+}
+
+.field__select:focus-visible {
+  outline: none;
+  border-color: var(--color-brand-600);
+  box-shadow: 0 0 0 3px var(--color-brand-100);
+}
+
+@media (min-width: 768px) {
+  .field__select {
+    max-width: 320px;
   }
 }

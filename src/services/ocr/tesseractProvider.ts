@@ -1,14 +1,14 @@
 import type { OcrProvider, OcrProviderResult, OcrRequest, OcrStage } from './types';
-import { NyalinError, abortError, looksLikeNetworkError } from './errors';
+import { NyalinError, abortError, looksLikeNetworkError } from '../errors';
 
 type TesseractWorker = import('tesseract.js').Worker;
 
 /** Bahasa Indonesia + Inggris: sebagian besar catatan di Indonesia bercampur istilah Inggris. */
 const LANGUAGES = 'ind+eng';
 
-/** Engine & data bahasa disajikan dari aplikasi sendiri (lihat build/tesseractAssets.ts). */
+/** Engine & data bahasa disajikan dari aplikasi sendiri (lihat scripts/copy-vendor-assets.mjs). */
 function assetUrl(path: string) {
-  return new URL(`${import.meta.env.BASE_URL}tesseract/${path}`, window.location.href).href;
+  return new URL(`/vendor/tesseract/${path}`, window.location.href).href;
 }
 
 /**
@@ -84,7 +84,7 @@ export function createTesseractProvider(): OcrProvider {
       } catch (error) {
         if (signal.aborted) throw abortError();
         if (error instanceof NyalinError) throw error;
-        throw new NyalinError(looksLikeNetworkError(error) ? 'network' : 'ocr-failed', error);
+        throw new NyalinError(looksLikeNetworkError(error) ? 'network' : 'process-failed', error);
       } finally {
         signal.removeEventListener('abort', onAbort);
         report = null;

@@ -1,10 +1,11 @@
 import { InlineAlert } from '../components/InlineAlert';
-import { ERROR_COPY } from '../content/errors';
-import type { NyalinErrorCode } from '../services/ocr';
+import { getErrorCopy } from '../content/errors';
+import type { NyalinErrorCode } from '../services/errors';
+import type { MediaKind } from '../lib/media';
 
-/** Error saat memilih file (format/ukuran) ditampilkan di tempat, tanpa meninggalkan layar. */
-export function SelectionAlert({ code }: { code: NyalinErrorCode }) {
-  const copy = ERROR_COPY[code];
+/** Error saat memilih file / merekam ditampilkan di tempat, tanpa meninggalkan layar. */
+export function SelectionAlert({ code, kind }: { code: NyalinErrorCode; kind: MediaKind }) {
+  const copy = getErrorCopy(code, kind);
   return (
     <InlineAlert title={copy.title}>
       <p>{copy.description}</p>

@@ -1,7 +1,7 @@
 {
   "name": "Nyalin",
   "short_name": "Nyalin",
-  "description": "Foto atau kirim gambarnya. Nyalin jadiin tulisan.",
+  "description": "Foto, kirim gambar, atau voice note. Nyalin jadiin tulisan.",
   "lang": "id",
   "start_url": "/",
   "display": "standalone",

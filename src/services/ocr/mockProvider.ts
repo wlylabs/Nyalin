@@ -1,5 +1,5 @@
 import type { OcrProvider, OcrProviderResult, OcrRequest } from './types';
-import { NyalinError, abortError } from './errors';
+import { NyalinError, abortError } from '../errors';
 
 /**
  * Provider tiruan untuk demo & pengujian alur tanpa engine OCR.
@@ -92,7 +92,7 @@ export function createMockProvider(): OcrProvider {
 
       const name = fileName.toLowerCase();
       if (name.includes('offline')) throw new NyalinError('network');
-      if (name.includes('gagal')) throw new NyalinError('ocr-failed');
+      if (name.includes('gagal')) throw new NyalinError('process-failed');
       if (name.includes('kosong')) return { text: '   \n', confidence: 0 };
       if (name.includes('buram')) return { text: 'Rn  ka.. ,e  lt', confidence: 18 };
 

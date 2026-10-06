@@ -6,3 +6,8 @@ dist
 !.env.example
 *.tsbuildinfo
 test-results
+
+# Runtime OCR & suara (disalin dari node_modules oleh scripts/copy-vendor-assets.mjs)
+public/vendor
+.next
+next-env.d.ts

@@ -1,5 +1,5 @@
 import type { OcrProvider, OcrProviderResult, OcrRequest } from './types';
-import { NyalinError, abortError, isAbortError } from './errors';
+import { NyalinError, abortError, isAbortError } from '../errors';
 
 /**
  * Provider untuk backend OCR sendiri (mis. model tulisan tangan di server).
@@ -32,7 +32,7 @@ export function createApiProvider(endpoint: string): OcrProvider {
 
       if (response.status === 413) throw new NyalinError('too-large');
       if (response.status === 415) throw new NyalinError('unsupported');
-      if (!response.ok) throw new NyalinError(response.status >= 500 ? 'ocr-failed' : 'network');
+      if (!response.ok) throw new NyalinError(response.status >= 500 ? 'process-failed' : 'network');
 
       try {
         const json = (await response.json()) as { text?: unknown; confidence?: unknown };
@@ -41,7 +41,7 @@ export function createApiProvider(endpoint: string): OcrProvider {
           confidence: typeof json.confidence === 'number' ? json.confidence : null,
         };
       } catch (error) {
-        throw new NyalinError('ocr-failed', error);
+        throw new NyalinError('process-failed', error);
       }
     },
   };

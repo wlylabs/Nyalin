@@ -1,24 +1,29 @@
 import { ActionBar } from '../components/ActionBar';
+import { AudioPreview } from '../components/AudioPreview';
 import { Button } from '../components/Button';
 import { ImagePreview } from '../components/ImagePreview';
 import { ProcessingState } from '../components/ProcessingState';
-import type { SelectedImage } from '../state/nyalinReducer';
-import type { OcrProgress } from '../services/ocr';
+import type { SelectedMedia } from '../state/nyalinReducer';
+import type { ProcessProgress } from '../services/progress';
 
 export function ProcessingView({
-  image,
+  media,
   progress,
   onCancel,
 }: {
-  image: SelectedImage;
-  progress: OcrProgress;
+  media: SelectedMedia;
+  progress: ProcessProgress;
   onCancel: () => void;
 }) {
   return (
     <div className="page page--narrow stack view-enter" aria-busy="true">
-      <h1 className="sr-only">Sedang memproses gambar</h1>
-      <ProcessingState progress={progress} />
-      <ImagePreview src={image.url} alt={`Gambar yang sedang dibaca: ${image.name}`} dimmed />
+      <h1 className="sr-only">{media.kind === 'audio' ? 'Sedang memproses voice note' : 'Sedang memproses gambar'}</h1>
+      <ProcessingState progress={progress} kind={media.kind} />
+      {media.kind === 'audio' ? (
+        <AudioPreview src={media.url} name={media.name} duration={media.duration} dimmed />
+      ) : (
+        <ImagePreview src={media.url} alt={`Gambar yang sedang dibaca: ${media.name}`} dimmed />
+      )}
       <ActionBar label="Proses">
         <Button onClick={onCancel}>Batalkan</Button>
       </ActionBar>

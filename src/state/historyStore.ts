@@ -1,15 +1,22 @@
 import { useSyncExternalStore } from 'react';
 
+import type { MediaKind } from '../lib/media';
+
 /**
  * Riwayat disimpan hanya di browser ini (localStorage).
- * Yang disimpan: teks hasil + thumbnail kecil. Gambar asli tidak pernah disimpan.
+ * Yang disimpan: teks hasil + thumbnail kecil (gambar) atau durasi (suara).
+ * Gambar dan rekaman suara asli tidak pernah disimpan.
  */
 export interface HistoryEntry {
   id: string;
   createdAt: number;
+  /** Entri lama (sebelum ada voice note) tidak punya field ini → dianggap gambar. */
+  kind?: MediaKind;
   fileName: string;
-  /** Data URL JPEG kecil (±200px). */
+  /** Data URL JPEG kecil (±200px). Kosong untuk suara. */
   thumbnail: string;
+  /** Durasi suara dalam detik. */
+  duration?: number | null;
   text: string;
 }
 

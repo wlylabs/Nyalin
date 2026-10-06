@@ -3,13 +3,10 @@
  * sehingga provider bisa diganti tanpa menyentuh UI atau state.
  */
 
-export type OcrStage = 'preparing' | 'loading-engine' | 'recognizing';
+import type { ProcessProgress, ProcessStage } from '../progress';
 
-export interface OcrProgress {
-  stage: OcrStage;
-  /** 0–1, atau null jika tahap ini tidak punya progres yang terukur. */
-  progress: number | null;
-}
+export type OcrStage = ProcessStage;
+export type OcrProgress = ProcessProgress;
 
 export interface OcrRequest {
   /** Gambar yang sudah disiapkan (orientasi benar, ukuran wajar). */

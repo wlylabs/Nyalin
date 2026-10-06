@@ -68,6 +68,25 @@ function joinWrappedLines(text: string): string {
   return out.join('\n');
 }
 
+/**
+ * Merapikan hasil transkripsi: spasi, tanda baca, dan label non-ucapan dari Whisper
+ * seperti "[Musik]" atau "(tertawa)". Kalimat dikelompokkan jadi paragraf pendek agar mudah dibaca.
+ */
+export function tidyTranscript(raw: string, sentencesPerParagraph = 4): string {
+  const flat = raw
+    .replace(/\[[^\]]{1,40}\]|\((?:musik|music|tertawa|laughs?|applause|tepuk tangan|suara[^)]*)\)|♪+/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/ +([,.;:!?%])/g, '$1')
+    .trim();
+  if (!flat) return '';
+  const sentences = flat.match(/[^.!?]+[.!?]+["')\]]*|[^.!?]+$/g)?.map((s) => s.trim()).filter(Boolean) ?? [flat];
+  const paragraphs: string[] = [];
+  for (let i = 0; i < sentences.length; i += sentencesPerParagraph) {
+    paragraphs.push(sentences.slice(i, i + sentencesPerParagraph).join(' '));
+  }
+  return paragraphs.join('\n\n');
+}
+
 /** Potongan singkat untuk daftar riwayat. */
 export function excerpt(text: string, max = 120): string {
   const flat = text.replace(/\s+/g, ' ').trim();

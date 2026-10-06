@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
-import { CircleAlert, FileWarning, ScanText, WifiOff } from 'lucide-react';
-import type { NyalinErrorCode } from '../services/ocr';
-import { ERROR_COPY } from '../content/errors';
+import { CircleAlert, FileWarning, MicOff, ScanText, Timer, VolumeX, WifiOff } from 'lucide-react';
+import type { NyalinErrorCode } from '../services/errors';
+import type { MediaKind } from '../lib/media';
+import { getErrorCopy } from '../content/errors';
 import './ErrorState.css';
 
 const ICONS: Partial<Record<NyalinErrorCode, typeof CircleAlert>> = {
@@ -12,12 +13,15 @@ const ICONS: Partial<Record<NyalinErrorCode, typeof CircleAlert>> = {
   unreadable: FileWarning,
   blurry: ScanText,
   'empty-result': ScanText,
+  'too-long': Timer,
+  'mic-denied': MicOff,
+  'mic-unavailable': MicOff,
 };
 
 /** Error halaman penuh setelah proses: apa yang terjadi, kenapa, dan apa yang bisa dilakukan. */
-export function ErrorState({ code, children }: { code: NyalinErrorCode; children?: ReactNode }) {
-  const copy = ERROR_COPY[code];
-  const Icon = ICONS[code] ?? CircleAlert;
+export function ErrorState({ code, kind, children }: { code: NyalinErrorCode; kind: MediaKind; children?: ReactNode }) {
+  const copy = getErrorCopy(code, kind);
+  const Icon = kind === 'audio' && code === 'empty-result' ? VolumeX : (ICONS[code] ?? CircleAlert);
   return (
     <section className="error-state" aria-labelledby="error-title">
       <span className="error-state__icon" aria-hidden="true">
